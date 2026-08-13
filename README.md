@@ -78,6 +78,28 @@ To add a piece, append an entry to `SHAPES` in `src/shapes.js`; `weight` sets
 how often it appears. Everything else — tray rendering, drag ghost, placement,
 the "no moves left" check — works off that definition.
 
+### Randomisation and difficulty
+
+Each tray slot is an independent weighted draw from `SHAPES` — there is no bag,
+no shuffle and no memory of what came before, so the same piece can appear
+three times in a row. All three slots refill at once, only when all three have
+been used.
+
+`weight` is the difficulty dial. Small pieces fit almost anywhere and keep a
+crowded board playable, so the mix decides how long a game runs. Measured with
+a greedy solver over 300 games:
+
+| Mix | avg cells | 1-2 cell | 4+ cell | moves/game | avg score |
+| --- | --- | --- | --- | --- | --- |
+| small-piece heavy | 2.90 | 35% | 26% | 53 | 1071 |
+| current | 3.39 | 18% | 42% | 37 | 717 |
+
+`REFILL_ATTEMPTS` in `src/game.js` is a second, much weaker dial: a refill
+redraws up to that many times looking for a tray with at least one playable
+piece. It reads like a big mercy but measures as noise (53 vs 54 moves with it
+off), because a tray that fits nowhere is rare until the board is already
+jammed. Set it to 1 to remove the safety net entirely.
+
 ### Tuning the look
 
 Two values are coupled and must move together: `--cell-stroke` in

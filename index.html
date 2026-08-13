@@ -10,32 +10,32 @@
 <body>
 <div id="app">
   <header class="hud">
-    <div class="hud-side">
-      <div class="gem-pill">
-        <svg class="icon gem" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 3h14l4 6-11 12L1 9z" fill="#e63b4d" />
-          <path d="M5 3h14l-7 6z" fill="#ff7a86" />
-          <path d="M1 9h22l-11 12z" fill="#c22437" />
-        </svg>
-        <span id="gems">0</span>
-      </div>
-    </div>
-    <div class="scores">
-      <span class="score" id="score">0</span>
-      <svg class="icon crown" viewBox="0 0 32 24" aria-hidden="true">
-        <path d="M3 21 L1 5 L9 11 L16 1 L23 11 L31 5 L29 21 Z" />
+    <div class="gem-pill">
+      <svg class="icon gem" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 3h14l4 6-11 12L1 9z" fill="#e63b4d" />
+        <path d="M5 3h14l-7 6z" fill="#ff7a86" />
+        <path d="M1 9h22l-11 12z" fill="#c22437" />
       </svg>
-      <span class="best" id="best">0</span>
+      <span id="gems">0</span>
     </div>
-    <div class="hud-side right">
+  </header>
+
+  <main class="stage">
+    <div class="scorebar">
+      <div class="scores">
+        <span class="score" id="score">0</span>
+        <svg class="icon crown" viewBox="0 0 32 24" aria-hidden="true">
+          <path d="M3 21 L1 5 L9 11 L16 1 L23 11 L31 5 L29 21 Z" />
+        </svg>
+        <span class="best" id="best">0</span>
+      </div>
       <button class="pause" id="pause" aria-label="Pause">
         <span></span><span></span>
       </button>
     </div>
-  </header>
-
-  <main class="board-wrap">
-    <svg id="board" role="img" aria-label="Triangle board"></svg>
+    <div class="board-wrap">
+      <svg id="board" role="img" aria-label="Triangle board"></svg>
+    </div>
   </main>
 
   <footer class="tray" id="tray"></footer>

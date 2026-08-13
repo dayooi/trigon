@@ -11,6 +11,13 @@ const STORE_GEMS = 'trigon.gems';
 const TRAY_SIZE = 3;
 const MAX_COMBO_MULT = 4;
 
+/*
+ * How many candidate trays a refill may draw looking for one with at least a
+ * single playable piece. Higher is more forgiving: it hands out second chances
+ * when the board is nearly jammed. 1 disables the mercy entirely.
+ */
+export const REFILL_ATTEMPTS = 8;
+
 // Gems reward multi-line drops only: a lone line pays nothing, two lines pay
 // one gem, and every further line in the same drop pays two more.
 //   lines  1  2  3  4  5
@@ -145,12 +152,13 @@ export class Game {
     if (!empty.length) return;
 
     const keeps = this.tray.filter(Boolean);
-    for (let attempt = 0; attempt < 30; attempt++) {
+    const attempts = this.refillAttempts ?? REFILL_ATTEMPTS;
+    for (let attempt = 0; attempt < attempts; attempt++) {
       const candidates = empty.map(() => randomPiece());
       const playable = [...keeps, ...candidates].some((piece) =>
         this.findPlacement(piece.shape)
       );
-      if (playable || attempt === 29) {
+      if (playable || attempt === attempts - 1) {
         empty.forEach((slot, i) => {
           this.tray[slot] = candidates[i];
         });
