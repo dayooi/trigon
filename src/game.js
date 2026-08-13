@@ -42,6 +42,18 @@ const GEMS_MAX_PER_DROP = 3;
 // for placeability — and a single triangle has nothing smaller to become.
 export const REROLL_COST = 10;
 
+/*
+ * Odds a reroll lands on a piece that actually fits the board as it stands.
+ * Paying to swap a stuck piece and getting another one feels like a swindle,
+ * so the draw is split: this share is taken from the part of the pool that
+ * fits, the rest from the part that does not. It is a target rate, not a
+ * floor — raise it toward 1 to make the reshuffle close to a sure thing.
+ *
+ * The extremes are honest about themselves: if nothing in the pool fits, no
+ * draw can save the player, and if everything fits the reroll always lands.
+ */
+export const REROLL_LUCK = 0.65;
+
 function readNumber(key) {
   const raw = Number(localStorage.getItem(key));
   return Number.isFinite(raw) && raw > 0 ? raw : 0;
@@ -175,7 +187,18 @@ export class Game {
   reroll(slot) {
     if (!this.canReroll(slot)) return null;
     const pool = this.rerollPool(slot);
-    const shape = pickWeighted(pool);
+    const fits = [];
+    const misses = [];
+    for (const candidate of pool) {
+      (this.findPlacement(candidate) ? fits : misses).push(candidate);
+    }
+
+    let candidates;
+    if (!fits.length) candidates = misses; // nothing can help; draw anyway
+    else if (!misses.length) candidates = fits; // everything helps
+    else candidates = Math.random() < REROLL_LUCK ? fits : misses;
+
+    const shape = pickWeighted(candidates);
     if (!shape) return null;
 
     this.gems -= REROLL_COST;

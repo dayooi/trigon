@@ -41,6 +41,11 @@ python3 -m http.server 8000
   swap is actually available, so short gems means a dimmed piece and no nag,
   and each piece is offered once. A single triangle has nothing smaller. The
   winner is decided before the reel starts — the spin is presentation.
+- A reroll lands on a piece that fits the board about 65% of the time
+  (`REROLL_LUCK`). The draw splits the pool into shapes that fit and shapes
+  that do not and picks a side by that rate, so the swap usually rescues you
+  without ever being a certainty. If nothing smaller fits, no draw can help
+  and it says so; if everything fits, it always lands.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout
