@@ -9,8 +9,14 @@ const STORE_BEST = 'trigon.best';
 const STORE_GEMS = 'trigon.gems';
 
 const TRAY_SIZE = 3;
-const GEMS_PER_LINE = 5;
 const MAX_COMBO_MULT = 4;
+
+// Gems for clearing n lines at once: 1, 3, 5, 7, ... — one for the first line,
+// two more for every extra line in the same drop.
+const GEMS_FIRST_LINE = 1;
+const GEMS_PER_EXTRA_LINE = 2;
+const gemsForLines = (lines) =>
+  lines > 0 ? GEMS_FIRST_LINE + (lines - 1) * GEMS_PER_EXTRA_LINE : 0;
 
 function readNumber(key) {
   const raw = Number(localStorage.getItem(key));
@@ -94,7 +100,7 @@ export class Game {
       multiplier = Math.min(1 + (this.streak - 1) * 0.5, MAX_COMBO_MULT);
       const base = cleared.size * 10 + (clearedLines.length - 1) * 60;
       points += Math.round(base * multiplier);
-      gems = clearedLines.length * GEMS_PER_LINE;
+      gems = gemsForLines(clearedLines.length);
       this.gems += gems;
       localStorage.setItem(STORE_GEMS, String(this.gems));
       for (const key of cleared.keys()) this.filled.delete(key);

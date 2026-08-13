@@ -22,8 +22,9 @@ python3 -m http.server 8000
 - Pieces cannot be rotated — the tray gives you the orientation you get.
 - A line is any full row or either diagonal. Clearing several at once, or
   clearing on consecutive drops, multiplies the score (up to 4x).
-- Gems accumulate across games (5 per line cleared). Best score and gems are
-  kept in `localStorage`.
+- Gems accumulate across games: 1 for a single line, then two more for every
+  extra line cleared in the same drop (1, 3, 5, 7, ...). Best score and gems
+  are kept in `localStorage`.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout
