@@ -8,7 +8,7 @@
   --text: #f2f2f2;
   --cell-stroke: 0.12;  /* corner radius is half of this; see CELL_SHRINK */
   --clear-ms: 420ms;
-  --font: 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font: 'Rubik', 'Trebuchet MS', system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }

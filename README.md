@@ -4,7 +4,9 @@ A triangle block puzzle: drag pieces from the tray onto a hexagonal board of
 triangles. Fill a complete line in any of the three grid directions and it
 clears. Play until nothing in the tray fits any more.
 
-No build step, no dependencies — plain ES modules, SVG and CSS.
+No build step, no dependencies — plain ES modules, SVG and CSS. The one asset
+is Rubik, embedded in `fonts.css` as a data URI (SIL Open Font License), so
+the game runs offline with no font request.
 
 ## Running
 
