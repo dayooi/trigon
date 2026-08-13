@@ -294,15 +294,16 @@ function askReshuffle(slot) {
   confirmPiece.replaceChildren(pieceSvg(piece.shape, piece.color).svg);
 
   const pool = game.rerollPool(slot);
-  const cost = `<span class="confirm-cost">${GEM_SVG}${REROLL_COST}</span>`;
   const affordable = game.gems >= REROLL_COST;
 
+  // The title says it is stuck and the button carries the price; the line
+  // between them only needs to cover what the buttons cannot.
   if (!pool.length) {
-    confirmText.innerHTML = 'This piece has nowhere to go, and nothing smaller to become.';
+    confirmText.textContent = 'Nothing smaller to swap for.';
   } else if (!affordable) {
-    confirmText.innerHTML = `This piece has nowhere to go. A reshuffle costs ${cost} — you have ${game.gems}.`;
+    confirmText.textContent = `Not enough gems — you have ${game.gems}.`;
   } else {
-    confirmText.innerHTML = `This piece has nowhere to go. Reshuffle it for ${cost} and get a smaller one?`;
+    confirmText.textContent = 'Swap it for a smaller piece?';
   }
 
   confirmYes.hidden = !pool.length;
