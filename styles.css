@@ -207,7 +207,6 @@ body {
 }
 
 .slot {
-  position: relative; /* anchors the reroll button */
   height: 100%;
   display: flex;
   align-items: center;
@@ -342,29 +341,7 @@ body {
 .btn:active { transform: translateY(1px); }
 .btn[hidden] { display: none; }
 
-/* ---------------------------------------------------------- reroll / draw */
-
-.reroll {
-  position: absolute;
-  bottom: 2px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 7px 2px 3px;
-  border: 2px solid var(--gold);
-  border-radius: 20px;
-  background: #141414;
-  color: var(--text);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.reroll svg { width: 14px; height: 14px; }
-.reroll:disabled { opacity: 0.3; cursor: default; }
-.reroll:not(:disabled):active { transform: translateY(1px); }
+/* ------------------------------------------------------------ lucky draw */
 
 .draw {
   position: fixed;
@@ -450,3 +427,29 @@ body {
   font-size: 13px;
   letter-spacing: 1px;
 }
+
+.confirm-piece {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 84px;
+  margin-bottom: 6px;
+}
+
+.confirm-piece svg { width: 78px; height: 78px; }
+
+.confirm-text {
+  margin: 0;
+  color: #bdbdbd;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.confirm-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: -3px;
+}
+
+.confirm-cost svg { width: 15px; height: 15px; }

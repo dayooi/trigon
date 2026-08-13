@@ -42,6 +42,12 @@ const bestEl = document.getElementById('best');
 const gemsEl = document.getElementById('gems');
 const pauseBtn = document.getElementById('pause');
 
+const confirmEl = document.getElementById('confirm');
+const confirmPiece = document.getElementById('confirm-piece');
+const confirmText = document.getElementById('confirm-text');
+const confirmYes = document.getElementById('confirm-yes');
+const confirmNo = document.getElementById('confirm-no');
+
 const drawEl = document.getElementById('draw');
 const drawPanel = drawEl.querySelector('.draw-panel');
 const reelEl = document.getElementById('reel');
@@ -102,26 +108,11 @@ function renderTray() {
       slot.appendChild(svg);
       if (!game.findPlacement(piece.shape)) slot.classList.add('dead');
       slot.addEventListener('pointerdown', (event) => startDrag(event, index, svg));
-
-      if (game.rerollPool(index).length) slot.appendChild(rerollButton(index));
     }
 
     trayEl.appendChild(slot);
     slots.push(slot);
   });
-}
-
-/** Gem-priced button that swaps this slot's piece for a smaller one. */
-function rerollButton(index) {
-  const button = document.createElement('button');
-  button.className = 'reroll';
-  button.innerHTML = `${GEM_SVG}<span>${REROLL_COST}</span>`;
-  button.disabled = !game.canReroll(index);
-  button.title = `Swap for a smaller piece (${REROLL_COST} gems)`;
-  // Keep the press from starting a drag of the piece underneath.
-  button.addEventListener('pointerdown', (event) => event.stopPropagation());
-  button.addEventListener('click', () => startDraw(index));
-  return button;
 }
 
 function clearPreview() {
@@ -141,6 +132,14 @@ function startDrag(event, slotIndex, slotSvg) {
   if (!piece) return;
 
   event.preventDefault();
+
+  // A piece with nowhere to go cannot be dragged anywhere useful; offer to
+  // buy a smaller one instead.
+  if (!game.findPlacement(piece.shape)) {
+    askReshuffle(slotIndex);
+    return;
+  }
+
   const grab = toBoardPoint(slotSvg, event.clientX, event.clientY);
   if (!grab) return;
 
@@ -284,6 +283,47 @@ function applyResult(result, x, y) {
 
 /* -------------------------------------------------------------- lucky draw */
 
+let pendingSlot = null;
+
+/** Offer to trade a stuck piece for a smaller one. */
+function askReshuffle(slot) {
+  const piece = game.tray[slot];
+  if (!piece || game.over || game.paused || drawing) return;
+
+  pendingSlot = slot;
+  confirmPiece.replaceChildren(pieceSvg(piece.shape, piece.color).svg);
+
+  const pool = game.rerollPool(slot);
+  const cost = `<span class="confirm-cost">${GEM_SVG}${REROLL_COST}</span>`;
+  const affordable = game.gems >= REROLL_COST;
+
+  if (!pool.length) {
+    confirmText.innerHTML = 'This piece has nowhere to go, and nothing smaller to become.';
+  } else if (!affordable) {
+    confirmText.innerHTML = `This piece has nowhere to go. A reshuffle costs ${cost} — you have ${game.gems}.`;
+  } else {
+    confirmText.innerHTML = `This piece has nowhere to go. Reshuffle it for ${cost} and get a smaller one?`;
+  }
+
+  confirmYes.hidden = !pool.length;
+  confirmYes.disabled = !affordable;
+  confirmYes.innerHTML = `Reshuffle <span class="confirm-cost">${GEM_SVG}${REROLL_COST}</span>`;
+  confirmNo.textContent = pool.length && affordable ? 'Cancel' : 'Close';
+  confirmEl.classList.add('shown');
+}
+
+function closeConfirm() {
+  confirmEl.classList.remove('shown');
+  pendingSlot = null;
+}
+
+confirmNo.addEventListener('click', closeConfirm);
+confirmYes.addEventListener('click', () => {
+  const slot = pendingSlot;
+  closeConfirm();
+  if (slot !== null) startDraw(slot);
+});
+
 function startDraw(slot) {
   if (drawing || drag) return;
   const result = game.reroll(slot);
@@ -396,6 +436,7 @@ function togglePause(force) {
 
 function restart() {
   cancelTimers();
+  closeConfirm();
   drawEl.classList.remove('shown');
   drawing = false;
   game.reset();

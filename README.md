@@ -34,11 +34,12 @@ python3 -m http.server 8000
   pays 1 and two middle lines pay 3, but a single drop never pays more than 3
   however much it clears.
   Gems accumulate across games; they and the best score live in `localStorage`.
-- Gems buy rerolls. Each tray piece carries a gem-priced button; paying 10
-  spins a lucky draw and swaps that piece for a random one **strictly
-  smaller** than it. A single triangle has nothing smaller, so it cannot be
-  rerolled. The draw is decided before the reel starts — the spin is
-  presentation.
+- Gems buy rerolls, offered only when a piece is stuck. A tray piece that
+  fits nowhere is dimmed; tapping it asks whether to reshuffle it for 10 gems,
+  with a cancel. Confirming spins a lucky draw and swaps the piece for a
+  random one **strictly smaller** than it. A single triangle has nothing
+  smaller, so the dialog only explains itself. The winner is decided before
+  the reel starts — the spin is presentation.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout
