@@ -50,7 +50,6 @@ export const SHAPES = [
   { id: 'big-down', cells: [[0, 0], [0, 1], [0, 2], [1, 1]], anchorUp: false, weight: 7 },
   { id: 'bar4-u', cells: [[0, 0], [0, 1], [0, 2], [0, 3]], anchorUp: true, weight: 5 },
   { id: 'bar4-d', cells: [[0, 0], [0, 1], [0, 2], [0, 3]], anchorUp: false, weight: 5 },
-  { id: 'crown', cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2]], anchorUp: true, weight: 4 },
 
   // 6 triangles — the hexagon around a single lattice vertex
   { id: 'hex', cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]], anchorUp: true, weight: 5 },
