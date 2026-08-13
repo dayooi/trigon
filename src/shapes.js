@@ -64,6 +64,11 @@ export const SHAPES = [
   { id: 'crown-a', cells: [[0, 0], [0, 1], [1, 0], [1, 1]], anchorUp: false, weight: 3 },
   { id: 'crown-b', cells: [[0, 0], [1, 0], [1, 1], [1, 2]], anchorUp: true, weight: 3 },
 
+  // 5 triangles — the hexagon with one cell missing, in three directions.
+  { id: 'crown5-h', cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2]], anchorUp: true, weight: 3 },
+  { id: 'crown5-a', cells: [[0, 0], [0, 1], [1, -1], [1, 0], [1, 1]], anchorUp: false, weight: 3 },
+  { id: 'crown5-b', cells: [[0, 0], [0, 1], [1, 0], [1, 1], [1, 2]], anchorUp: true, weight: 3 },
+
   // 6 triangles — the hexagon around a single lattice vertex
   { id: 'hex', cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]], anchorUp: true, weight: 5 },
 ];
