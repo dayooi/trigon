@@ -40,26 +40,36 @@ body {
 
 /* ------------------------------------------------------------------ hud */
 
-.hud { flex: 0 0 auto; }
-
 /*
- * The pause button is taken out of the flow so the score cluster centres on
- * the screen itself, not on the space left over beside the button. The
- * symmetric padding reserves room for it without shifting that centre.
+ * One row: gems, score, pause. The two side cells share `flex: 1 1 0`, so they
+ * stay equal in width and the score cluster sits on the screen's centre line
+ * however wide the gem count grows.
  */
-.hud-main {
-  position: relative;
-  padding: 0 46px;
-  font-size: clamp(28px, 9vw, 44px);
-  font-weight: 800;
-  line-height: 1;
-}
-
-.scores {
+.hud {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
+  gap: 8px;
+}
+
+.hud-side {
+  flex: 1 1 0;
+  /* Never shrink below the gem pill, so it cannot ride over the score. */
+  min-width: min-content;
+  display: flex;
+  align-items: center;
+}
+
+.hud-side.right { justify-content: flex-end; }
+
+.scores {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: clamp(22px, 7vw, 40px);
+  font-weight: 800;
+  line-height: 1;
 }
 
 .score { color: var(--score); }
@@ -77,15 +87,12 @@ body {
 }
 
 .pause {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
   gap: 5px;
   padding: 0;
   border: 0;
   background: none;
+  font-size: clamp(22px, 7vw, 40px);
   cursor: pointer;
 }
 
@@ -101,20 +108,23 @@ body {
 .pause:active { opacity: 0.6; }
 
 .gem-pill {
-  margin-top: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 12px 3px 4px;
+  gap: 5px;
+  padding: 2px 9px 2px 3px;
   border: 3px solid var(--gold);
-  border-radius: 10px;
+  border-radius: 9px;
   background: #141414;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: 1px;
 }
 
-.gem { width: 26px; height: 26px; }
+.gem {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
 
 /* ---------------------------------------------------------------- board */
 

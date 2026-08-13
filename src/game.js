@@ -11,12 +11,17 @@ const STORE_GEMS = 'trigon.gems';
 const TRAY_SIZE = 3;
 const MAX_COMBO_MULT = 4;
 
-// Gems for clearing n lines at once: 1, 3, 5, 7, ... — one for the first line,
-// two more for every extra line in the same drop.
-const GEMS_FIRST_LINE = 1;
+// Gems reward multi-line drops only: a lone line pays nothing, two lines pay
+// one gem, and every further line in the same drop pays two more.
+//   lines  1  2  3  4  5
+//   gems   0  1  3  5  7
+const GEMS_MIN_LINES = 2;
+const GEMS_AT_MIN = 1;
 const GEMS_PER_EXTRA_LINE = 2;
 const gemsForLines = (lines) =>
-  lines > 0 ? GEMS_FIRST_LINE + (lines - 1) * GEMS_PER_EXTRA_LINE : 0;
+  lines >= GEMS_MIN_LINES
+    ? GEMS_AT_MIN + (lines - GEMS_MIN_LINES) * GEMS_PER_EXTRA_LINE
+    : 0;
 
 function readNumber(key) {
   const raw = Number(localStorage.getItem(key));
