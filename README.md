@@ -22,10 +22,12 @@ python3 -m http.server 8000
 - Pieces cannot be rotated — the tray gives you the orientation you get.
 - A line is any full row or either diagonal. Clearing several at once, or
   clearing on consecutive drops, multiplies the score (up to 4x).
-- Gems reward multi-line drops only. Clearing one line pays nothing; two at
-  once pays 1 gem, and every further line in the same drop pays two more
-  (0, 1, 3, 5, 7, ...). Gems accumulate across games; they and the best score
-  are kept in `localStorage`.
+- Gems come from two rules, added together. Multi-line drops pay 0 for one
+  line, 1 for two at once, then two more per further line (0, 1, 3, 5, 7...).
+  On top of that each *longest* line cleared pays 1 gem — the two middle lines
+  of each direction, 15 cells against 9 along the rim. So a lone middle line
+  pays 1, two middle lines pay 3, and all three through one cell pay 6.
+  Gems accumulate across games; they and the best score live in `localStorage`.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout

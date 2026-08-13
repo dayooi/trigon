@@ -18,8 +18,8 @@ const MAX_COMBO_MULT = 4;
  */
 export const REFILL_ATTEMPTS = 8;
 
-// Gems reward multi-line drops only: a lone line pays nothing, two lines pay
-// one gem, and every further line in the same drop pays two more.
+// Gems reward multi-line drops: a lone line pays nothing, two lines pay one
+// gem, and every further line in the same drop pays two more.
 //   lines  1  2  3  4  5
 //   gems   0  1  3  5  7
 const GEMS_MIN_LINES = 2;
@@ -29,6 +29,11 @@ const gemsForLines = (lines) =>
   lines >= GEMS_MIN_LINES
     ? GEMS_AT_MIN + (lines - GEMS_MIN_LINES) * GEMS_PER_EXTRA_LINE
     : 0;
+
+// On top of that, every longest line cleared pays a gem of its own. Those are
+// the two middle lines of each direction — the widest span on the board, and
+// much harder to fill than the short ones along the rim.
+const GEMS_PER_LONGEST_LINE = 1;
 
 function readNumber(key) {
   const raw = Number(localStorage.getItem(key));
@@ -103,6 +108,10 @@ export class Game {
       }
     }
 
+    const longestCleared = clearedLines.filter(
+      (name) => this.board.groups.get(name).length === this.board.longestLine
+    ).length;
+
     let points = placed.length;
     let gems = 0;
     let multiplier = 1;
@@ -112,7 +121,7 @@ export class Game {
       multiplier = Math.min(1 + (this.streak - 1) * 0.5, MAX_COMBO_MULT);
       const base = cleared.size * 10 + (clearedLines.length - 1) * 60;
       points += Math.round(base * multiplier);
-      gems = gemsForLines(clearedLines.length);
+      gems = gemsForLines(clearedLines.length) + longestCleared * GEMS_PER_LONGEST_LINE;
       this.gems += gems;
       localStorage.setItem(STORE_GEMS, String(this.gems));
       for (const key of cleared.keys()) this.filled.delete(key);
@@ -133,6 +142,7 @@ export class Game {
       placed,
       cleared: [...cleared].map(([key, color]) => ({ key, color })),
       lines: clearedLines.length,
+      longestLines: longestCleared,
       points,
       gems,
       streak: this.streak,

@@ -99,12 +99,19 @@ export function buildBoard(k) {
     for (let j = 0; j < bottom; j++) add(r, -bottom + 2 * j);
   }
 
+  // The two middle lines of each direction are the longest on the board.
+  let longestLine = 0;
+  for (const members of groups.values()) {
+    if (members.length > longestLine) longestLine = members.length;
+  }
+
   return {
     k,
     lines,
     rows,
     cells,
     groups,
+    longestLine,
     minX: -k,
     minY: 0,
     width: 2 * k,
