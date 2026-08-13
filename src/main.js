@@ -279,11 +279,36 @@ function applyResult(result, x, y) {
   renderTray();
 
   if (game.over) later(showGameOver, CLEAR_ANIM_MS + 120);
+  else later(maybeOfferReshuffle, CLEAR_ANIM_MS + 260);
 }
 
 /* -------------------------------------------------------------- lucky draw */
 
 let pendingSlot = null;
+
+/**
+ * Volunteer the offer when a piece goes dead, rather than waiting for a tap
+ * nobody would think to make on a piece that visibly cannot be played.
+ *
+ * Only when the swap is actually available: with too few gems the dialog
+ * could do nothing but nag, so a stuck piece then just sits there dimmed.
+ * Each piece is offered once, so cancelling is respected until the tray
+ * changes.
+ */
+function maybeOfferReshuffle() {
+  if (game.over || game.paused || drawing || drag) return;
+  if (confirmEl.classList.contains('shown')) return;
+
+  for (let slot = 0; slot < game.tray.length; slot++) {
+    const piece = game.tray[slot];
+    if (!piece || piece.offered) continue;
+    if (game.findPlacement(piece.shape)) continue;
+    if (!game.canReroll(slot)) continue;
+    piece.offered = true;
+    askReshuffle(slot);
+    return;
+  }
+}
 
 /** Offer to trade a stuck piece for a smaller one. */
 function askReshuffle(slot) {
@@ -386,6 +411,7 @@ function spinReel(result) {
       renderTray();
       syncHud();
       if (game.over) later(showGameOver, 200);
+      else later(maybeOfferReshuffle, 260); // the new piece can be stuck too
     }, 850);
   };
   const onEnd = (event) => {
