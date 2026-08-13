@@ -20,8 +20,11 @@ python3 -m http.server 8000
 - Drag a piece from the tray onto the board. The piece snaps to the nearest
   cell where it actually fits, so you don't have to be pixel-perfect.
 - Pieces cannot be rotated — the tray gives you the orientation you get.
-- A line is any full row or either diagonal. Clearing several at once, or
-  clearing on consecutive drops, multiplies the score (up to 4x).
+- A line is any full row or either diagonal, and clearing one empties those
+  cells again.
+- Score counts placed triangles and nothing else: a drop is worth one point
+  per triangle in the piece, whether or not it clears. Clearing pays in gems
+  instead.
 - Gems come from two rules, added together. Multi-line drops pay 0 for one
   line, 1 for two at once, then two more per further line (0, 1, 3, 5, 7...).
   On top of that each *longest* line cleared pays 1 gem — the two middle lines

@@ -242,7 +242,7 @@ function applyResult(result, x, y) {
     }
     later(syncBoard, CLEAR_ANIM_MS);
 
-    const label = result.multiplier > 1 ? `x${result.multiplier} COMBO` : `${result.lines} LINE`;
+    const label = result.lines > 1 ? `${result.lines} LINES` : '1 LINE';
     floatText(floatLayer, label, x, y - 44, 'combo');
   }
 

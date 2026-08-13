@@ -9,7 +9,6 @@ const STORE_BEST = 'trigon.best';
 const STORE_GEMS = 'trigon.gems';
 
 const TRAY_SIZE = 3;
-const MAX_COMBO_MULT = 4;
 
 /*
  * How many candidate trays a refill may draw looking for one with at least a
@@ -115,15 +114,12 @@ export class Game {
       (name) => this.board.groups.get(name).length === this.board.longestLine
     ).length;
 
-    let points = placed.length;
+    // Score counts placed triangles and nothing else — clearing pays in gems.
+    const points = placed.length;
     let gems = 0;
-    let multiplier = 1;
 
     if (clearedLines.length) {
       this.streak++;
-      multiplier = Math.min(1 + (this.streak - 1) * 0.5, MAX_COMBO_MULT);
-      const base = cleared.size * 10 + (clearedLines.length - 1) * 60;
-      points += Math.round(base * multiplier);
       gems = Math.min(
         gemsForLines(clearedLines.length) + longestCleared * GEMS_PER_LONGEST_LINE,
         GEMS_MAX_PER_DROP
@@ -152,7 +148,6 @@ export class Game {
       points,
       gems,
       streak: this.streak,
-      multiplier,
     };
   }
 
