@@ -68,16 +68,26 @@ export const SHAPES = [
   { id: 'hex', cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]], anchorUp: true, weight: 5 },
 ];
 
-/** Summed per draw, so weights can be retuned at runtime. */
-const totalWeight = () => SHAPES.reduce((sum, s) => sum + s.weight, 0);
-
-export function randomShape() {
-  let roll = Math.random() * totalWeight();
-  for (const shape of SHAPES) {
+/** Weighted pick from any list of shapes. Summed per draw, so weights can be
+ * retuned at runtime. */
+export function pickWeighted(list) {
+  if (!list.length) return null;
+  const total = list.reduce((sum, s) => sum + s.weight, 0);
+  let roll = Math.random() * total;
+  for (const shape of list) {
     roll -= shape.weight;
     if (roll <= 0) return shape;
   }
-  return SHAPES[0];
+  return list[list.length - 1];
+}
+
+export function randomShape() {
+  return pickWeighted(SHAPES);
+}
+
+/** Every shape strictly smaller than `cells` triangles. */
+export function shapesSmallerThan(cells) {
+  return SHAPES.filter((shape) => shape.cells.length < cells);
 }
 
 export function randomColor() {

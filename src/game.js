@@ -3,7 +3,7 @@
  */
 
 import { buildBoard, isUp, cellKey } from './geometry.js';
-import { randomPiece } from './shapes.js';
+import { randomPiece, randomColor, pickWeighted, shapesSmallerThan } from './shapes.js';
 
 const STORE_BEST = 'trigon.best';
 const STORE_GEMS = 'trigon.gems';
@@ -36,6 +36,11 @@ const GEMS_PER_LONGEST_LINE = 1;
 
 // However big the drop, a single placement never pays more than this.
 const GEMS_MAX_PER_DROP = 3;
+
+// Gems buy a reroll of one tray piece. The replacement is drawn from shapes
+// strictly smaller than the one being swapped, so a reroll always trades size
+// for placeability — and a single triangle has nothing smaller to become.
+export const REROLL_COST = 10;
 
 function readNumber(key) {
   const raw = Number(localStorage.getItem(key));
@@ -149,6 +154,40 @@ export class Game {
       gems,
       streak: this.streak,
     };
+  }
+
+  /** Shapes a reroll of this slot could hand back. */
+  rerollPool(slot) {
+    const piece = this.tray[slot];
+    return piece ? shapesSmallerThan(piece.shape.cells.length) : [];
+  }
+
+  canReroll(slot) {
+    if (this.over || this.paused) return false;
+    if (this.gems < REROLL_COST) return false;
+    return this.rerollPool(slot).length > 0;
+  }
+
+  /**
+   * Swap one tray piece for a smaller one, for gems. Returns the pool it was
+   * drawn from alongside the winner, so the UI can show the draw.
+   */
+  reroll(slot) {
+    if (!this.canReroll(slot)) return null;
+    const pool = this.rerollPool(slot);
+    const shape = pickWeighted(pool);
+    if (!shape) return null;
+
+    this.gems -= REROLL_COST;
+    localStorage.setItem(STORE_GEMS, String(this.gems));
+
+    const piece = { shape, color: randomColor() };
+    this.tray[slot] = piece;
+    // A smaller piece usually fits more places, but orientation can still leave
+    // it homeless — re-check rather than risk a board with no legal move.
+    this.over = !this.hasMoves();
+
+    return { piece, pool, cost: REROLL_COST };
   }
 
   /**

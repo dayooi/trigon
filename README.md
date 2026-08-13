@@ -32,6 +32,11 @@ python3 -m http.server 8000
   pays 1 and two middle lines pay 3, but a single drop never pays more than 3
   however much it clears.
   Gems accumulate across games; they and the best score live in `localStorage`.
+- Gems buy rerolls. Each tray piece carries a gem-priced button; paying 10
+  spins a lucky draw and swaps that piece for a random one **strictly
+  smaller** than it. A single triangle has nothing smaller, so it cannot be
+  rerolled. The draw is decided before the reel starts — the spin is
+  presentation.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout
@@ -131,3 +136,6 @@ transform — so the board reads as a fixed grid that a line vanishes from.
 - `game.place()` returns everything a feature needs to react to a move —
   cells placed, cells cleared with their colours, lines, points, gems and the
   current streak.
+- `REROLL_COST` in `src/game.js` prices the lucky draw; `game.rerollPool(slot)`
+  is the candidate list and `game.reroll(slot)` performs it, returning the
+  winner alongside the pool it came from.

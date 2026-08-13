@@ -2,8 +2,8 @@
  * Wiring: tray rendering, drag & drop, HUD, overlays.
  */
 
-import { Game } from './game.js';
-import { SHAPES } from './shapes.js';
+import { Game, REROLL_COST } from './game.js';
+import { SHAPES, COLORS } from './shapes.js';
 import { cellAtPoint } from './geometry.js';
 import {
   renderBoard,
@@ -22,6 +22,14 @@ const TOUCH_LIFT = 78; // px the piece floats above a finger
 const SNAP_RADIUS = 0.75; // unit-space forgiveness when snapping to a cell
 const CLEAR_ANIM_MS = 420; // keep in step with --clear-ms
 const TRAY_SCALE = 0.85; // tray pieces, relative to board cell size
+const REEL_ITEM_W = 104;  // keep in step with .reel-item width
+const SPIN_MS = 1900;
+
+const GEM_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+  '<path d="M5 3h14l4 6-11 12L1 9z" fill="#e63b4d"/>' +
+  '<path d="M5 3h14l-7 6z" fill="#ff7a86"/>' +
+  '<path d="M1 9h22l-11 12z" fill="#c22437"/></svg>';
 
 const game = new Game(4);
 
@@ -34,6 +42,11 @@ const bestEl = document.getElementById('best');
 const gemsEl = document.getElementById('gems');
 const pauseBtn = document.getElementById('pause');
 
+const drawEl = document.getElementById('draw');
+const drawPanel = drawEl.querySelector('.draw-panel');
+const reelEl = document.getElementById('reel');
+const drawNote = document.getElementById('draw-note');
+
 const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
 const overlayBody = document.getElementById('overlay-body');
@@ -43,6 +56,7 @@ const restartBtn = document.getElementById('restart');
 const cellNodes = renderBoard(boardSvg, game.board);
 const slots = [];
 let drag = null;
+let drawing = false;
 let timers = [];
 
 /** setTimeout that a restart can cancel, so stale animations never resurface. */
@@ -88,11 +102,26 @@ function renderTray() {
       slot.appendChild(svg);
       if (!game.findPlacement(piece.shape)) slot.classList.add('dead');
       slot.addEventListener('pointerdown', (event) => startDrag(event, index, svg));
+
+      if (game.rerollPool(index).length) slot.appendChild(rerollButton(index));
     }
 
     trayEl.appendChild(slot);
     slots.push(slot);
   });
+}
+
+/** Gem-priced button that swaps this slot's piece for a smaller one. */
+function rerollButton(index) {
+  const button = document.createElement('button');
+  button.className = 'reroll';
+  button.innerHTML = `${GEM_SVG}<span>${REROLL_COST}</span>`;
+  button.disabled = !game.canReroll(index);
+  button.title = `Swap for a smaller piece (${REROLL_COST} gems)`;
+  // Keep the press from starting a drag of the piece underneath.
+  button.addEventListener('pointerdown', (event) => event.stopPropagation());
+  button.addEventListener('click', () => startDraw(index));
+  return button;
 }
 
 function clearPreview() {
@@ -107,7 +136,7 @@ function clearPreview() {
 /* ------------------------------------------------------------------- drag */
 
 function startDrag(event, slotIndex, slotSvg) {
-  if (game.over || game.paused || drag) return;
+  if (game.over || game.paused || drag || drawing) return;
   const piece = game.tray[slotIndex];
   if (!piece) return;
 
@@ -253,6 +282,78 @@ function applyResult(result, x, y) {
   if (game.over) later(showGameOver, CLEAR_ANIM_MS + 120);
 }
 
+/* -------------------------------------------------------------- lucky draw */
+
+function startDraw(slot) {
+  if (drawing || drag) return;
+  const result = game.reroll(slot);
+  if (!result) return;
+
+  drawing = true;
+  syncHud(); // gems are spent up front
+  renderTray(); // repaint so the old piece cannot be grabbed mid-spin
+  spinReel(result);
+}
+
+/**
+ * Scroll a strip of candidate pieces past a fixed centre marker and stop on
+ * the one the game already drew. The reel is presentation only — the winner
+ * was decided before the first frame.
+ */
+function spinReel(result) {
+  const { pool, piece } = result;
+  const items = [];
+  const loops = Math.max(3, Math.ceil(18 / pool.length));
+  for (let i = 0; i < loops; i++) items.push(...pool);
+
+  const landIndex = items.length;
+  items.push(piece.shape);
+  items.push(...pool.slice(0, 3)); // a little runway past the winner
+
+  reelEl.replaceChildren();
+  items.forEach((shape, i) => {
+    const item = document.createElement('div');
+    item.className = 'reel-item';
+    const color = i === landIndex ? piece.color : COLORS[i % COLORS.length];
+    item.appendChild(pieceSvg(shape, color).svg);
+    reelEl.appendChild(item);
+  });
+
+  const sizes = [...new Set(pool.map((s) => s.cells.length))].sort();
+  drawNote.textContent = `${sizes.join('/')}-cell pieces only`;
+  drawPanel.classList.remove('landed');
+  drawEl.classList.add('shown');
+
+  const windowWidth = reelEl.parentElement.clientWidth;
+  const offsetFor = (i) => -(i * REEL_ITEM_W + REEL_ITEM_W / 2 - windowWidth / 2);
+
+  reelEl.style.transition = 'none';
+  reelEl.style.transform = `translateX(${offsetFor(0)}px)`;
+  void reelEl.offsetWidth; // flush the jump so the next change animates
+  reelEl.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.72, 0.16, 1)`;
+  reelEl.style.transform = `translateX(${offsetFor(landIndex)}px)`;
+
+  let settled = false;
+  const finish = () => {
+    if (settled) return;
+    settled = true;
+    reelEl.removeEventListener('transitionend', onEnd);
+    drawPanel.classList.add('landed');
+    later(() => {
+      drawEl.classList.remove('shown');
+      drawing = false;
+      renderTray();
+      syncHud();
+      if (game.over) later(showGameOver, 200);
+    }, 850);
+  };
+  const onEnd = (event) => {
+    if (event.propertyName === 'transform') finish();
+  };
+  reelEl.addEventListener('transitionend', onEnd);
+  later(finish, SPIN_MS + 400); // in case the transition never reports back
+}
+
 /* ---------------------------------------------------------------- overlays */
 
 function showOverlay(title, body, { resumable }) {
@@ -295,6 +396,8 @@ function togglePause(force) {
 
 function restart() {
   cancelTimers();
+  drawEl.classList.remove('shown');
+  drawing = false;
   game.reset();
   hideOverlay();
   syncBoard();

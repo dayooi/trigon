@@ -207,6 +207,7 @@ body {
 }
 
 .slot {
+  position: relative; /* anchors the reroll button */
   height: 100%;
   display: flex;
   align-items: center;
@@ -340,3 +341,112 @@ body {
 .btn.primary { background: var(--score); color: #10261d; }
 .btn:active { transform: translateY(1px); }
 .btn[hidden] { display: none; }
+
+/* ---------------------------------------------------------- reroll / draw */
+
+.reroll {
+  position: absolute;
+  bottom: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px 2px 3px;
+  border: 2px solid var(--gold);
+  border-radius: 20px;
+  background: #141414;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.reroll svg { width: 14px; height: 14px; }
+.reroll:disabled { opacity: 0.3; cursor: default; }
+.reroll:not(:disabled):active { transform: translateY(1px); }
+
+.draw {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.86);
+}
+
+.draw.shown { display: flex; }
+
+.draw-panel {
+  width: min(340px, 92vw);
+  padding: 20px 0 16px;
+  border-radius: 20px;
+  background: #242424;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  text-align: center;
+  overflow: hidden;
+}
+
+.draw-title {
+  margin-bottom: 14px;
+  color: var(--gold);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* The reel scrolls behind a fixed centre marker. */
+.reel-window {
+  position: relative;
+  height: 108px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+
+.reel {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.reel-item {
+  flex: 0 0 auto;
+  width: 104px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reel-item svg { width: 74px; height: 74px; }
+
+.reel-marker {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 50%;
+  width: 104px;
+  transform: translateX(-50%);
+  border: 3px solid var(--gold);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+.draw-panel.landed .reel-marker {
+  animation: marker-pop 420ms ease-out;
+}
+
+@keyframes marker-pop {
+  0%   { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(255, 201, 60, 0.7); }
+  40%  { transform: translateX(-50%) scale(1.08); box-shadow: 0 0 0 12px rgba(255, 201, 60, 0); }
+  100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(255, 201, 60, 0); }
+}
+
+.draw-note {
+  margin-top: 12px;
+  color: #9a9a9a;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
