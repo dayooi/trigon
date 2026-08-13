@@ -48,9 +48,21 @@ export const SHAPES = [
   // 4 triangles
   { id: 'big-up', cells: [[0, 0], [1, -1], [1, 0], [1, 1]], anchorUp: true, weight: 7 },
   { id: 'big-down', cells: [[0, 0], [0, 1], [0, 2], [1, 1]], anchorUp: false, weight: 7 },
-  { id: 'bar4-u', cells: [[0, 0], [0, 1], [0, 2], [0, 3]], anchorUp: true, weight: 5 },
-  { id: 'bar4-d', cells: [[0, 0], [0, 1], [0, 2], [0, 3]], anchorUp: false, weight: 5 },
-  { id: 'crown', cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2]], anchorUp: true, weight: 4 },
+
+  // 4 triangles — a straight bar lying along a line, in all three directions
+  // and both parities. `h` runs along a row, `a` and `b` along the diagonals.
+  { id: 'bar4-h1', cells: [[0, 0], [0, 1], [0, 2], [0, 3]], anchorUp: true, weight: 3 },
+  { id: 'bar4-h2', cells: [[0, 0], [0, 1], [0, 2], [0, 3]], anchorUp: false, weight: 3 },
+  { id: 'bar4-a1', cells: [[0, 0], [1, -1], [1, 0], [2, -1]], anchorUp: true, weight: 3 },
+  { id: 'bar4-a2', cells: [[0, 0], [0, 1], [1, -1], [1, 0]], anchorUp: true, weight: 3 },
+  { id: 'bar4-b1', cells: [[0, 0], [0, 1], [1, 1], [1, 2]], anchorUp: false, weight: 3 },
+  { id: 'bar4-b2', cells: [[0, 0], [1, 0], [1, 1], [2, 1]], anchorUp: true, weight: 3 },
+
+  // 4 triangles — the crown: three in a line with one leg hanging off an end,
+  // in three directions.
+  { id: 'crown-h', cells: [[0, 0], [0, 1], [0, 2], [1, 0]], anchorUp: true, weight: 3 },
+  { id: 'crown-a', cells: [[0, 0], [0, 1], [1, 0], [1, 1]], anchorUp: false, weight: 3 },
+  { id: 'crown-b', cells: [[0, 0], [1, 0], [1, 1], [1, 2]], anchorUp: true, weight: 3 },
 
   // 6 triangles — the hexagon around a single lattice vertex
   { id: 'hex', cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]], anchorUp: true, weight: 5 },
