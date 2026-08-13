@@ -35,6 +35,9 @@ const gemsForLines = (lines) =>
 // much harder to fill than the short ones along the rim.
 const GEMS_PER_LONGEST_LINE = 1;
 
+// However big the drop, a single placement never pays more than this.
+const GEMS_MAX_PER_DROP = 3;
+
 function readNumber(key) {
   const raw = Number(localStorage.getItem(key));
   return Number.isFinite(raw) && raw > 0 ? raw : 0;
@@ -121,7 +124,10 @@ export class Game {
       multiplier = Math.min(1 + (this.streak - 1) * 0.5, MAX_COMBO_MULT);
       const base = cleared.size * 10 + (clearedLines.length - 1) * 60;
       points += Math.round(base * multiplier);
-      gems = gemsForLines(clearedLines.length) + longestCleared * GEMS_PER_LONGEST_LINE;
+      gems = Math.min(
+        gemsForLines(clearedLines.length) + longestCleared * GEMS_PER_LONGEST_LINE,
+        GEMS_MAX_PER_DROP
+      );
       this.gems += gems;
       localStorage.setItem(STORE_GEMS, String(this.gems));
       for (const key of cleared.keys()) this.filled.delete(key);

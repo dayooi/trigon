@@ -26,7 +26,8 @@ python3 -m http.server 8000
   line, 1 for two at once, then two more per further line (0, 1, 3, 5, 7...).
   On top of that each *longest* line cleared pays 1 gem — the two middle lines
   of each direction, 15 cells against 9 along the rim. So a lone middle line
-  pays 1, two middle lines pay 3, and all three through one cell pay 6.
+  pays 1 and two middle lines pay 3, but a single drop never pays more than 3
+  however much it clears.
   Gems accumulate across games; they and the best score live in `localStorage`.
 - Keyboard: `p` pauses, `r` starts a new game.
 
