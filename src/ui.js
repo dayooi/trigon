@@ -12,9 +12,11 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 /**
  * How far each triangle is pulled toward its centroid, leaving grout lines.
  * The rounded stroke paints back ~half its width, so the visible gap is
- * roughly (1 - CELL_SHRINK) * 2 * inradius - strokeWidth.
+ * roughly (1 - CELL_SHRINK) * 2 * inradius - strokeWidth, and the corner
+ * radius is half the stroke width. Keep in step with --cell-stroke in the
+ * stylesheet: a wider stroke needs a smaller shrink to hold the gap steady.
  */
-const CELL_SHRINK = 0.84;
+const CELL_SHRINK = 0.7;
 
 export function svgEl(tag, attrs = {}) {
   const node = document.createElementNS(SVG_NS, tag);
@@ -97,17 +99,18 @@ export function pieceSvg(shape, color, className = 'piece') {
 }
 
 /**
- * Colours are applied as inline styles, not presentation attributes: the
- * stylesheet's `.cell { fill: ... }` would otherwise win over an attribute.
+ * Colour rides on a custom property rather than `fill` directly. The
+ * stylesheet reads it for filled, preview and clearing cells alike, which lets
+ * the clear animation fade a cell from its own colour back to the empty board
+ * colour without the cell ever moving. (A presentation attribute would also
+ * lose to the stylesheet's `.cell { fill: ... }` rule.)
  */
 export function tintCell(node, color) {
-  node.style.fill = color;
-  node.style.stroke = color;
+  node.style.setProperty('--fill', color);
 }
 
 export function untintCell(node) {
-  node.style.fill = '';
-  node.style.stroke = '';
+  node.style.removeProperty('--fill');
 }
 
 /** Paint a cell from game state, dropping any transient drag/clear styling. */

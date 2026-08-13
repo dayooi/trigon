@@ -20,7 +20,7 @@ import {
 
 const TOUCH_LIFT = 78; // px the piece floats above a finger
 const SNAP_RADIUS = 0.75; // unit-space forgiveness when snapping to a cell
-const CLEAR_ANIM_MS = 380;
+const CLEAR_ANIM_MS = 420; // keep in step with --clear-ms
 const TRAY_SCALE = 0.85; // tray pieces, relative to board cell size
 
 const game = new Game(4);

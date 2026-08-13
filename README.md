@@ -76,6 +76,19 @@ To add a piece, append an entry to `SHAPES` in `src/shapes.js`; `weight` sets
 how often it appears. Everything else — tray rendering, drag ghost, placement,
 the "no moves left" check — works off that definition.
 
+### Tuning the look
+
+Two values are coupled and must move together: `--cell-stroke` in
+`styles.css` and `CELL_SHRINK` in `src/ui.js`. The stroke is drawn in the
+cell's own colour with a round line join, so it does the corner rounding
+(radius = half the stroke) and paints back over the shrink. Widening the
+stroke without lowering the shrink closes the gaps between triangles;
+lowering it without widening the stroke gives sharp corners.
+
+Clearing a line animates colour only — `--fill` fading to `--cell`, never
+transform — so the board reads as a fixed grid that a line vanishes from.
+`--clear-ms` and `CLEAR_ANIM_MS` in `src/main.js` are the same duration.
+
 ### Adding features
 
 - `window.trigon` exposes `{ game, SHAPES, syncBoard, syncHud, renderTray,

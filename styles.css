@@ -6,6 +6,8 @@
   --best: #ef5f78;
   --gold: #ffc93c;
   --text: #f2f2f2;
+  --cell-stroke: 0.12;  /* corner radius is half of this; see CELL_SHRINK */
+  --clear-ms: 420ms;
   --font: 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
@@ -40,14 +42,24 @@ body {
 
 .hud { flex: 0 0 auto; }
 
+/*
+ * The pause button is taken out of the flow so the score cluster centres on
+ * the screen itself, not on the space left over beside the button. The
+ * symmetric padding reserves room for it without shifting that centre.
+ */
 .hud-main {
+  position: relative;
+  padding: 0 46px;
+  font-size: clamp(28px, 9vw, 44px);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.scores {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
-  font-size: clamp(28px, 9vw, 44px);
-  font-weight: 800;
-  line-height: 1;
 }
 
 .score { color: var(--score); }
@@ -65,7 +77,10 @@ body {
 }
 
 .pause {
-  margin-left: auto;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   gap: 5px;
   padding: 0;
@@ -121,9 +136,16 @@ body {
 .cell {
   fill: var(--cell);
   stroke: var(--cell);
-  stroke-width: 0.05;
+  stroke-width: var(--cell-stroke);
   stroke-linejoin: round;
   transition: fill 90ms linear, stroke 90ms linear;
+}
+
+/* --fill is set per cell by the renderer; absent means an empty cell. */
+.cell.filled,
+.cell.preview {
+  fill: var(--fill);
+  stroke: var(--fill);
 }
 
 .cell.preview {
@@ -131,22 +153,19 @@ body {
   stroke-opacity: 0.45;
 }
 
-.cell.filled {
-  fill-opacity: 1;
-  stroke-opacity: 1;
-}
-
+/*
+ * Clearing only animates colour. The triangle keeps its exact position and
+ * size, so the board reads as a fixed grid that a line vanishes from rather
+ * than one that loses cells.
+ */
 .cell.clearing {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: pop 380ms ease-out forwards;
+  animation: clear-line var(--clear-ms) ease-out forwards;
 }
 
-/* Stays under ~1.1 so neighbouring triangles never merge into a solid bar. */
-@keyframes pop {
-  0%   { transform: scale(1); fill-opacity: 1; }
-  30%  { transform: scale(1.08); fill-opacity: 1; }
-  100% { transform: scale(0.15); fill-opacity: 0; }
+@keyframes clear-line {
+  0%   { fill: var(--fill); stroke: var(--fill); }
+  18%  { fill: #ffffff; stroke: #ffffff; }
+  100% { fill: var(--cell); stroke: var(--cell); }
 }
 
 /* ----------------------------------------------------------------- tray */
@@ -180,7 +199,7 @@ body {
 .slot.dead { opacity: 0.35; }
 
 .piece polygon {
-  stroke-width: 0.05;
+  stroke-width: var(--cell-stroke);
   stroke-linejoin: round;
 }
 
