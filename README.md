@@ -98,12 +98,11 @@ a greedy solver over 300 games:
 | Mix | avg cells | 1-2 cell | 4+ cell | moves/game |
 | --- | --- | --- | --- | --- |
 | small-piece heavy | 2.90 | 35% | 26% | 53 |
-| current | 3.57 | 14% | 54% | 33 |
+| current | 3.43 | 15% | 50% | 39 |
 
-The 26 shapes cover every orientation a piece can take, since pieces never
+The 23 shapes cover every orientation a piece can take, since pieces never
 rotate: the trapezoid in 6, the four-in-a-line bar in 3 directions x 2
-parities, and both crowns — the four-cell leg and the five-cell hexagon
-minus a corner — in 3 each.
+parities, and the crown (three in a line with a leg) in 3.
 
 `REFILL_ATTEMPTS` in `src/game.js` is a second, much weaker dial: a refill
 redraws up to that many times looking for a tray with at least one playable
