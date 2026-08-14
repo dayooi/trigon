@@ -40,7 +40,10 @@ python3 -m http.server 8000
   random piece **strictly smaller**. The offer only volunteers itself when the
   swap is actually available, so short gems means a dimmed piece and no nag,
   and each piece is offered once. A single triangle has nothing smaller. The
-  winner is decided before the reel starts — the spin is presentation.
+  winner is decided before the reel is built, but it sits parked until the
+  player taps to spin — the theatre is theirs to start. The tray deliberately
+  keeps drawing the old piece until the reel lands, so the overlay never
+  spoils its own result.
 - A reroll lands on a piece that fits the board about 65% of the time
   (`REROLL_LUCK`). The draw splits the pool into shapes that fit and shapes
   that do not and picks a side by that rate, so the swap usually rescues you

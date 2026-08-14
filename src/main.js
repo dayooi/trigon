@@ -285,6 +285,18 @@ function applyResult(result, x, y) {
 /* -------------------------------------------------------------- lucky draw */
 
 let pendingSlot = null;
+let pendingSpin = null;
+
+/** Anywhere on the draw overlay releases the reel, so it is a big easy target. */
+function releaseReel() {
+  if (!pendingSpin) return;
+  const spin = pendingSpin;
+  pendingSpin = null;
+  spin();
+}
+
+document.getElementById('draw-spin').addEventListener('click', releaseReel);
+drawEl.addEventListener('click', releaseReel);
 
 /**
  * Volunteer the offer when a piece goes dead, rather than waiting for a tap
@@ -357,16 +369,18 @@ function startDraw(slot) {
 
   drawing = true;
   syncHud(); // gems are spent up front
-  renderTray(); // repaint so the old piece cannot be grabbed mid-spin
-  spinReel(result);
+  // The tray is deliberately not repainted yet: the swap has already happened
+  // in state, and redrawing here would show the answer behind the overlay
+  // before the reel does. `drawing` keeps the stale piece from being grabbed.
+  armReel(result);
 }
 
 /**
- * Scroll a strip of candidate pieces past a fixed centre marker and stop on
- * the one the game already drew. The reel is presentation only — the winner
- * was decided before the first frame.
+ * Build the reel and leave it parked, waiting for the player to set it going.
+ * The winner is already decided — the spin is theatre — but it is the player's
+ * theatre, so nothing moves until they touch it.
  */
-function spinReel(result) {
+function armReel(result) {
   const { pool, piece } = result;
   const items = [];
   const loops = Math.max(3, Math.ceil(18 / pool.length));
@@ -388,6 +402,7 @@ function spinReel(result) {
   const sizes = [...new Set(pool.map((s) => s.cells.length))].sort();
   drawNote.textContent = `${sizes.join('/')}-cell pieces only`;
   drawPanel.classList.remove('landed');
+  drawPanel.classList.add('ready');
   drawEl.classList.add('shown');
 
   const windowWidth = reelEl.parentElement.clientWidth;
@@ -395,9 +410,16 @@ function spinReel(result) {
 
   reelEl.style.transition = 'none';
   reelEl.style.transform = `translateX(${offsetFor(0)}px)`;
-  void reelEl.offsetWidth; // flush the jump so the next change animates
+
+  pendingSpin = () => spinReel(offsetFor(landIndex));
+}
+
+/** Let it go, then hand the piece over once it settles. */
+function spinReel(landOffset) {
+  drawPanel.classList.remove('ready');
+  void reelEl.offsetWidth; // flush the parked position so this one animates
   reelEl.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.72, 0.16, 1)`;
-  reelEl.style.transform = `translateX(${offsetFor(landIndex)}px)`;
+  reelEl.style.transform = `translateX(${landOffset}px)`;
 
   let settled = false;
   const finish = () => {
@@ -465,6 +487,8 @@ function restart() {
   cancelTimers();
   closeConfirm();
   drawEl.classList.remove('shown');
+  drawPanel.classList.remove('ready', 'landed');
+  pendingSpin = null;
   drawing = false;
   game.reset();
   hideOverlay();
