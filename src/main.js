@@ -2,7 +2,7 @@
  * Wiring: tray rendering, drag & drop, HUD, overlays.
  */
 
-import { Game, REROLL_COST, REROLL_LUCK } from './game.js';
+import { Game, REROLL_COST } from './game.js';
 import { SHAPES, COLORS } from './shapes.js';
 import { cellAtPoint } from './geometry.js';
 import {
@@ -51,7 +51,6 @@ const confirmNo = document.getElementById('confirm-no');
 const drawEl = document.getElementById('draw');
 const drawPanel = drawEl.querySelector('.draw-panel');
 const reelEl = document.getElementById('reel');
-const drawNote = document.getElementById('draw-note');
 
 const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
@@ -394,7 +393,6 @@ function armReel(result) {
     reelEl.appendChild(item);
   });
 
-  drawNote.textContent = `${Math.round(REROLL_LUCK * 100)}% land on a piece that fits`;
   drawPanel.classList.remove('landed');
   drawPanel.classList.add('ready');
   drawEl.classList.add('shown');

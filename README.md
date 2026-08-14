@@ -41,7 +41,8 @@ python3 -m http.server 8000
   offered once. The winner is decided before the reel is built, but it sits
   parked until the player taps to spin — the theatre is theirs to start. The
   tray deliberately keeps drawing the old piece until the reel lands, so the
-  overlay never spoils its own result.
+  overlay never spoils its own result, and the odds are not printed anywhere
+  in the game.
 - Any of the 23 shapes can come back, large or small. What the gems really buy
   is the odds: a reroll lands on a piece that fits the board about 65% of the
   time (`REROLL_LUCK`). The draw splits the pool into shapes that fit and

@@ -357,7 +357,7 @@ body {
 
 .draw-panel {
   width: min(340px, 92vw);
-  padding: 20px 0 16px;
+  padding: 20px 0 22px;
   border-radius: 20px;
   background: #242424;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
@@ -454,13 +454,6 @@ body {
 @keyframes marker-idle {
   0%, 100% { border-color: rgba(255, 201, 60, 0.45); }
   50%      { border-color: rgba(255, 201, 60, 1); }
-}
-
-.draw-note {
-  margin-top: 12px;
-  color: #9a9a9a;
-  font-size: 13px;
-  letter-spacing: 1px;
 }
 
 .confirm-piece {
