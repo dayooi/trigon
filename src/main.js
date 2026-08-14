@@ -2,7 +2,7 @@
  * Wiring: tray rendering, drag & drop, HUD, overlays.
  */
 
-import { Game, REROLL_COST } from './game.js';
+import { Game, REROLL_COST, REROLL_LUCK } from './game.js';
 import { SHAPES, COLORS } from './shapes.js';
 import { cellAtPoint } from './geometry.js';
 import {
@@ -330,23 +330,18 @@ function askReshuffle(slot) {
   pendingSlot = slot;
   confirmPiece.replaceChildren(pieceSvg(piece.shape, piece.color).svg);
 
-  const pool = game.rerollPool(slot);
   const affordable = game.gems >= REROLL_COST;
 
   // The title says it is stuck and the button carries the price; the line
   // between them only needs to cover what the buttons cannot.
-  if (!pool.length) {
-    confirmText.textContent = 'Nothing smaller to swap for.';
-  } else if (!affordable) {
-    confirmText.textContent = `Not enough gems — you have ${game.gems}.`;
-  } else {
-    confirmText.textContent = 'Swap it for a smaller piece?';
-  }
+  confirmText.textContent = affordable
+    ? 'Swap it for another piece?'
+    : `Not enough gems — you have ${game.gems}.`;
 
-  confirmYes.hidden = !pool.length;
+  confirmYes.hidden = false;
   confirmYes.disabled = !affordable;
   confirmYes.innerHTML = `Reshuffle <span class="confirm-cost">${GEM_SVG}${REROLL_COST}</span>`;
-  confirmNo.textContent = pool.length && affordable ? 'Cancel' : 'Close';
+  confirmNo.textContent = affordable ? 'Cancel' : 'Close';
   confirmEl.classList.add('shown');
 }
 
@@ -399,8 +394,7 @@ function armReel(result) {
     reelEl.appendChild(item);
   });
 
-  const sizes = [...new Set(pool.map((s) => s.cells.length))].sort();
-  drawNote.textContent = `${sizes.join('/')}-cell pieces only`;
+  drawNote.textContent = `${Math.round(REROLL_LUCK * 100)}% land on a piece that fits`;
   drawPanel.classList.remove('landed');
   drawPanel.classList.add('ready');
   drawEl.classList.add('shown');

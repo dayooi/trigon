@@ -85,11 +85,6 @@ export function randomShape() {
   return pickWeighted(SHAPES);
 }
 
-/** Every shape strictly smaller than `cells` triangles. */
-export function shapesSmallerThan(cells) {
-  return SHAPES.filter((shape) => shape.cells.length < cells);
-}
-
 export function randomColor() {
   return COLORS[(Math.random() * COLORS.length) | 0];
 }

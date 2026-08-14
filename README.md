@@ -36,19 +36,18 @@ python3 -m http.server 8000
   Gems accumulate across games; they and the best score live in `localStorage`.
 - Gems buy rerolls. When a piece goes stuck — dimmed, fitting nowhere — the
   game offers by itself to swap it for 10 gems, with a cancel; you can also
-  tap the piece to ask. Confirming spins a lucky draw and swaps it for a
-  random piece **strictly smaller**. The offer only volunteers itself when the
-  swap is actually available, so short gems means a dimmed piece and no nag,
-  and each piece is offered once. A single triangle has nothing smaller. The
-  winner is decided before the reel is built, but it sits parked until the
-  player taps to spin — the theatre is theirs to start. The tray deliberately
-  keeps drawing the old piece until the reel lands, so the overlay never
-  spoils its own result.
-- A reroll lands on a piece that fits the board about 65% of the time
-  (`REROLL_LUCK`). The draw splits the pool into shapes that fit and shapes
-  that do not and picks a side by that rate, so the swap usually rescues you
-  without ever being a certainty. If nothing smaller fits, no draw can help
-  and it says so; if everything fits, it always lands.
+  tap the piece to ask. The offer only volunteers itself when the swap is
+  affordable, so short gems means a dimmed piece and no nag, and each piece is
+  offered once. The winner is decided before the reel is built, but it sits
+  parked until the player taps to spin — the theatre is theirs to start. The
+  tray deliberately keeps drawing the old piece until the reel lands, so the
+  overlay never spoils its own result.
+- Any of the 23 shapes can come back, large or small. What the gems really buy
+  is the odds: a reroll lands on a piece that fits the board about 65% of the
+  time (`REROLL_LUCK`). The draw splits the pool into shapes that fit and
+  shapes that do not, then picks a side by that rate — so the swap usually
+  rescues you without ever being a certainty. Both extremes stay honest: if
+  nothing fits, no draw can help; if everything fits, it always lands.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout
@@ -148,6 +147,6 @@ transform — so the board reads as a fixed grid that a line vanishes from.
 - `game.place()` returns everything a feature needs to react to a move —
   cells placed, cells cleared with their colours, lines, points, gems and the
   current streak.
-- `REROLL_COST` in `src/game.js` prices the lucky draw; `game.rerollPool(slot)`
-  is the candidate list and `game.reroll(slot)` performs it, returning the
-  winner alongside the pool it came from.
+- `REROLL_COST` prices the lucky draw and `REROLL_LUCK` sets how often it
+  rescues you, both in `src/game.js`; `game.reroll(slot)` performs the draw and
+  returns the winner alongside the pool it came from.

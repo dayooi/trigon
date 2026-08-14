@@ -3,7 +3,7 @@
  */
 
 import { buildBoard, isUp, cellKey } from './geometry.js';
-import { randomPiece, randomColor, pickWeighted, shapesSmallerThan } from './shapes.js';
+import { SHAPES, randomPiece, randomColor, pickWeighted } from './shapes.js';
 
 const STORE_BEST = 'trigon.best';
 const STORE_GEMS = 'trigon.gems';
@@ -37,9 +37,8 @@ const GEMS_PER_LONGEST_LINE = 1;
 // However big the drop, a single placement never pays more than this.
 const GEMS_MAX_PER_DROP = 3;
 
-// Gems buy a reroll of one tray piece. The replacement is drawn from shapes
-// strictly smaller than the one being swapped, so a reroll always trades size
-// for placeability — and a single triangle has nothing smaller to become.
+// Gems buy a reroll of one tray piece. Any shape can come back, large or
+// small; what the player is really buying is the odds below.
 export const REROLL_COST = 10;
 
 /*
@@ -168,10 +167,9 @@ export class Game {
     };
   }
 
-  /** Shapes a reroll of this slot could hand back. */
+  /** Shapes a reroll of this slot could hand back: anything at all. */
   rerollPool(slot) {
-    const piece = this.tray[slot];
-    return piece ? shapesSmallerThan(piece.shape.cells.length) : [];
+    return this.tray[slot] ? SHAPES : [];
   }
 
   canReroll(slot) {
@@ -181,8 +179,8 @@ export class Game {
   }
 
   /**
-   * Swap one tray piece for a smaller one, for gems. Returns the pool it was
-   * drawn from alongside the winner, so the UI can show the draw.
+   * Swap one tray piece for another, for gems. Returns the pool it was drawn
+   * from alongside the winner, so the UI can show the draw.
    */
   reroll(slot) {
     if (!this.canReroll(slot)) return null;
@@ -206,8 +204,8 @@ export class Game {
 
     const piece = { shape, color: randomColor() };
     this.tray[slot] = piece;
-    // A smaller piece usually fits more places, but orientation can still leave
-    // it homeless — re-check rather than risk a board with no legal move.
+    // The draw can legitimately hand back another piece that fits nowhere, so
+    // re-check rather than risk a board with no legal move and no game-over.
     this.over = !this.hasMoves();
 
     return { piece, pool, cost: REROLL_COST };
