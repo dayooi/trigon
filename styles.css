@@ -528,27 +528,96 @@ body {
 
 /* ---------------------------------------------------------------- themes */
 
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+/* A page, not a dialog: it takes the whole screen and scrolls. */
+.theme-page {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: none;
+  flex-direction: column;
+  background: var(--bg);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-.theme-card {
+.theme-page.shown { display: flex; }
+
+.theme-bar {
+  flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 7px;
-  padding: 12px 8px 9px;
-  border: 3px solid transparent;
-  border-radius: 14px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+}
+
+.theme-x {
+  display: flex;
+  padding: 4px;
+  border: 0;
+  background: none;
   cursor: pointer;
 }
 
-.theme-card svg { width: 74px; height: 30px; }
-.theme-card.active { border-color: var(--gold); }
-.theme-card:active { transform: translateY(1px); }
+.theme-x svg {
+  width: 26px;
+  height: 26px;
+  stroke: var(--text);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.theme-x:active { opacity: 0.6; }
+
+.theme-list {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/*
+ * One band per theme: its own scene behind, its own hexagon, its own colours
+ * on the name and the button. The row is the sample.
+ */
+.theme-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.theme-row + .theme-row { border-top: 1px solid rgba(0, 0, 0, 0.08); }
+
+.theme-hex {
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+}
+
+.theme-name {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.theme-use {
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  pointer-events: none; /* the whole row is the target */
+}
+
+.theme-row.active .theme-use::after {
+  content: ' \2713';
+}

@@ -6,7 +6,7 @@ import { Game, REROLL_COST } from './game.js';
 import { SHAPES } from './shapes.js';
 import { THEMES, DEFAULT_THEME, activeTheme, useTheme, pieceColor } from './themes.js';
 import { readText, write } from './storage.js';
-import { cellAtPoint, polyPoints, pointsAttr, H } from './geometry.js';
+import { cellAtPoint, polyPoints, pointsAttr, buildBoard } from './geometry.js';
 import {
   renderBoard,
   pieceSvg,
@@ -48,7 +48,8 @@ const pauseBtn = document.getElementById('pause');
 
 const themeBtn = document.getElementById('theme-btn');
 const themesEl = document.getElementById('themes');
-const themeGrid = document.getElementById('theme-grid');
+const themeList = document.getElementById('theme-list');
+const gemsPageEl = document.getElementById('gems-page');
 
 const confirmEl = document.getElementById('confirm');
 const confirmPiece = document.getElementById('confirm-piece');
@@ -95,6 +96,7 @@ function syncHud() {
   scoreEl.textContent = game.score;
   bestEl.textContent = game.best;
   gemsEl.textContent = game.gems;
+  gemsPageEl.textContent = game.gems;
 }
 
 function renderTray() {
@@ -292,19 +294,31 @@ function applyResult(result, x, y) {
 
 /* ------------------------------------------------------------------ themes */
 
-/** Four triangles in the theme's own colours, on its own ground. */
-function themeSwatch(theme) {
+/**
+ * A small hexagon of the board's own geometry, wedged into six colours so the
+ * palette reads at a glance the way it does once pieces are on the board.
+ */
+const PREVIEW_BOARD = buildBoard(2);
+
+function themeHexagon(theme) {
+  const pad = 0.16;
   const svg = svgEl('svg', {
-    viewBox: `-0.12 -0.12 2.74 ${H + 0.24}`,
-    preserveAspectRatio: 'xMidYMid meet',
+    class: 'theme-hex',
+    viewBox: `${PREVIEW_BOARD.minX - pad} ${PREVIEW_BOARD.minY - pad} ` +
+             `${PREVIEW_BOARD.width + pad * 2} ${PREVIEW_BOARD.height + pad * 2}`,
   });
-  for (let i = 0; i < 4; i++) {
+  const centreY = PREVIEW_BOARD.height / 2;
+
+  for (const cell of PREVIEW_BOARD.cells.values()) {
+    const angle = Math.atan2(cell.cy - centreY, cell.cx);
+    const wedge = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * 6) % 6;
+    const color = theme.pieces[wedge % theme.pieces.length];
     svg.appendChild(
       svgEl('polygon', {
-        points: pointsAttr(polyPoints(0, i, i % 2 === 0, 0.84)),
-        fill: theme.pieces[i],
-        stroke: theme.pieces[i],
-        'stroke-width': '0.12',
+        points: pointsAttr(polyPoints(cell.r, cell.p, cell.up, 0.9)),
+        fill: color,
+        stroke: color,
+        'stroke-width': '0.1',
         'stroke-linejoin': 'round',
       })
     );
@@ -313,27 +327,35 @@ function themeSwatch(theme) {
 }
 
 function buildThemeCards() {
-  themeGrid.replaceChildren();
+  themeList.replaceChildren();
   for (const theme of THEMES) {
-    const card = document.createElement('button');
-    card.className = 'theme-card';
-    card.dataset.theme = theme.id;
-    card.style.background = theme.vars.bg;
-    card.style.color = theme.vars.text;
+    const row = document.createElement('button');
+    row.className = 'theme-row';
+    row.dataset.theme = theme.id;
+    row.style.background = theme.banner;
 
-    const label = document.createElement('span');
-    label.textContent = theme.label;
-    card.append(themeSwatch(theme), label);
-    card.addEventListener('click', () => applyTheme(theme.id));
-    themeGrid.appendChild(card);
+    const name = document.createElement('span');
+    name.className = 'theme-name';
+    name.textContent = theme.label;
+    name.style.color = theme.vars.text;
+
+    const use = document.createElement('span');
+    use.className = 'theme-use';
+    use.textContent = 'USE';
+    use.style.background = theme.vars.primary;
+    use.style.color = theme.vars['primary-ink'];
+
+    row.append(themeHexagon(theme), name, use);
+    row.addEventListener('click', () => applyTheme(theme.id));
+    themeList.appendChild(row);
   }
   markActiveTheme();
 }
 
 function markActiveTheme() {
   const current = activeTheme().id;
-  for (const card of themeGrid.children) {
-    card.classList.toggle('active', card.dataset.theme === current);
+  for (const row of themeList.children) {
+    row.classList.toggle('active', row.dataset.theme === current);
   }
 }
 
@@ -359,7 +381,10 @@ function applyTheme(id, { save = true } = {}) {
   renderTray();
 }
 
-themeBtn.addEventListener('click', () => themesEl.classList.add('shown'));
+themeBtn.addEventListener('click', () => {
+  syncHud();
+  themesEl.classList.add('shown');
+});
 document.getElementById('theme-close').addEventListener('click', () =>
   themesEl.classList.remove('shown')
 );

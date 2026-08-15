@@ -55,14 +55,23 @@
 <div id="ghost-layer"></div>
 <div id="float-layer"></div>
 
-<div id="themes" class="overlay">
-  <div class="panel">
-    <h1>Theme</h1>
-    <div class="theme-grid" id="theme-grid"></div>
-    <div class="actions">
-      <button id="theme-close" class="btn">Done</button>
+<div id="themes" class="theme-page">
+  <header class="theme-bar">
+    <button class="theme-x" id="theme-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 5 L19 19 M19 5 L5 19" />
+      </svg>
+    </button>
+    <div class="gem-pill">
+      <svg class="icon gem" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 3h14l4 6-11 12L1 9z" fill="#e63b4d" />
+        <path d="M5 3h14l-7 6z" fill="#ff7a86" />
+        <path d="M1 9h22l-11 12z" fill="#c22437" />
+      </svg>
+      <span id="gems-page">0</span>
     </div>
-  </div>
+  </header>
+  <div class="theme-list" id="theme-list"></div>
 </div>
 
 <div id="confirm" class="overlay">

@@ -1,5 +1,5 @@
 /**
- * Themes: one palette for the interface, one for the pieces.
+ * Themes: one palette for the interface, one for the pieces, one banner.
  *
  * `vars` are written onto the root element as custom properties, so the
  * stylesheet never names a colour of its own beyond the defaults in :root.
@@ -7,12 +7,19 @@
  *
  * Pieces store an index into that palette rather than a hex value, so
  * switching theme recolours the board and tray in place — see `pieceColor`.
+ *
+ * `banner` is the strip behind a theme's row on the picker page: a painted
+ * scene rather than a photograph, so the game stays a few files with nothing
+ * to fetch. Swapping in a real image means replacing the gradient with a
+ * url(...) — the layout expects a background, not a particular kind of one.
  */
 
 export const THEMES = [
   {
     id: 'midnight',
     label: 'Midnight',
+    banner:
+      'radial-gradient(120% 80% at 78% 12%, rgba(255,201,60,0.16) 0%, rgba(255,201,60,0) 55%), linear-gradient(180deg, #101014 0%, #1b1b1f 45%, #232326 100%)',
     vars: {
       bg: '#1b1b1b',
       cell: '#333333',
@@ -47,6 +54,8 @@ export const THEMES = [
     // to peach. Ink is the deep teal of water past the reef.
     id: 'summer',
     label: 'Summer',
+    banner:
+      'radial-gradient(120% 90% at 88% 4%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 46%), linear-gradient(166deg, #0c6a80 0%, #12869c 18%, #2bb0c0 34%, #86d8d6 48%, #f7f2e4 55%, #eeddc0 62%, #e9d2b0 100%)',
     vars: {
       bg: '#fbeada',
       cell: '#ecd5b6',
@@ -86,6 +95,8 @@ export const THEMES = [
     // Overcast ice: pale sky, frozen water, and the blue-grey of shadow on snow.
     id: 'winter',
     label: 'Winter',
+    banner:
+      'radial-gradient(110% 80% at 20% 0%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 55%), linear-gradient(172deg, #cfe0ef 0%, #aecadf 30%, #8fb6d2 46%, #cadcea 60%, #eaf2f9 78%, #fdfeff 100%)',
     vars: {
       bg: '#eef4f9',
       cell: '#d5e1ec',
@@ -119,6 +130,8 @@ export const THEMES = [
     // Late leaves against bark: rust, amber, olive, and the plum of early dusk.
     id: 'autumn',
     label: 'Autumn',
+    banner:
+      'radial-gradient(90% 80% at 16% 6%, rgba(250,214,140,0.65) 0%, rgba(250,214,140,0) 58%), linear-gradient(170deg, #edb455 0%, #dd8b33 26%, #c9622f 46%, #a8462a 62%, #8d6f33 80%, #d9c199 100%)',
     vars: {
       bg: '#fbeeda',
       cell: '#e8d0ae',
@@ -152,6 +165,8 @@ export const THEMES = [
     // First growth: new leaf, blossom, and a washed morning sky.
     id: 'spring',
     label: 'Spring',
+    banner:
+      'radial-gradient(90% 80% at 82% 8%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 52%), linear-gradient(172deg, #cbe6f4 0%, #e4f1e6 26%, #f3b9cd 44%, #cbe08c 62%, #8dc86f 80%, #cfe4c2 100%)',
     vars: {
       bg: '#f3f9ec',
       cell: '#dcebd1',

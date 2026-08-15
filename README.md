@@ -64,8 +64,9 @@ top-level name, which is the one way the concatenation could break quietly.
   shapes that do not, then picks a side by that rate — so the swap usually
   rescues you without ever being a certainty. Both extremes stay honest: if
   nothing fits, no draw can help; if everything fits, it always lands.
-- The palette button top right dresses the board for a season: Midnight (the
-  default dark board), Summer, Winter, Autumn and Spring. The choice sticks.
+- The palette button top right opens a full page of seasons — Midnight (the
+  default dark board), Summer, Winter, Autumn, Spring — each a band showing
+  its own scene, hexagon and colours. Tap a row to wear it; the choice sticks.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout
@@ -149,7 +150,11 @@ jammed. Set it to 1 to remove the safety net entirely.
 ### Themes
 
 A theme is `vars` — custom properties written onto the root element — plus
-`pieces`, the colours a piece can be. The stylesheet names no colour of its
+`pieces`, the colours a piece can be, plus `banner`, the scene behind its row
+on the picker page. Banners are painted with gradients rather than
+photographs so the game stays a handful of files with nothing to fetch;
+swapping in a real image is a matter of replacing the gradient with a
+`url(...)`, since the layout only expects a background. The stylesheet names no colour of its
 own beyond the defaults in `:root`, so adding a season is one entry in
 `THEMES` and nothing else.
 
