@@ -53,9 +53,26 @@ export const REROLL_COST = 10;
  */
 export const REROLL_LUCK = 0.65;
 
+/*
+ * Storage is best-effort. Sandboxed frames and private windows can throw on
+ * access rather than merely returning null, and a score that cannot be saved
+ * is no reason to lose the game in progress.
+ */
 function readNumber(key) {
-  const raw = Number(localStorage.getItem(key));
-  return Number.isFinite(raw) && raw > 0 ? raw : 0;
+  try {
+    const raw = Number(localStorage.getItem(key));
+    return Number.isFinite(raw) && raw > 0 ? raw : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function store(key, value) {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    /* not persisted; play continues */
+  }
 }
 
 export class Game {
@@ -141,7 +158,7 @@ export class Game {
         GEMS_MAX_PER_DROP
       );
       this.gems += gems;
-      localStorage.setItem(STORE_GEMS, String(this.gems));
+      store(STORE_GEMS, this.gems);
       for (const key of cleared.keys()) this.filled.delete(key);
     } else {
       this.streak = 0;
@@ -150,7 +167,7 @@ export class Game {
     this.score += points;
     if (this.score > this.best) {
       this.best = this.score;
-      localStorage.setItem(STORE_BEST, String(this.best));
+      store(STORE_BEST, this.best);
     }
 
     if (this.tray.every((slotPiece) => !slotPiece)) this.refill();
@@ -200,7 +217,7 @@ export class Game {
     if (!shape) return null;
 
     this.gems -= REROLL_COST;
-    localStorage.setItem(STORE_GEMS, String(this.gems));
+    store(STORE_GEMS, this.gems);
 
     const piece = { shape, color: randomColor() };
     this.tray[slot] = piece;

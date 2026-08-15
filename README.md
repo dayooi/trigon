@@ -17,6 +17,20 @@ python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
+### One-file build
+
+To get a copy that needs no server at all — for sharing, or for opening
+straight off disk:
+
+```sh
+node tools/build-single.mjs      # writes dist/trigon.html
+```
+
+It concatenates the modules in dependency order, strips their imports and
+`export` keywords, and inlines the CSS and font. Nothing is fetched at
+runtime. The script fails loudly if two modules ever declare the same
+top-level name, which is the one way the concatenation could break quietly.
+
 ## How it plays
 
 - Drag a piece from the tray onto the board. The piece snaps to the nearest
