@@ -3,7 +3,9 @@
  */
 
 import { buildBoard, isUp, cellKey } from './geometry.js';
-import { SHAPES, randomPiece, randomColor, pickWeighted } from './shapes.js';
+import { SHAPES, randomPiece, pickWeighted } from './shapes.js';
+import { randomTint } from './themes.js';
+import { readNumber, write } from './storage.js';
 
 const STORE_BEST = 'trigon.best';
 const STORE_GEMS = 'trigon.gems';
@@ -52,28 +54,6 @@ export const REROLL_COST = 10;
  * draw can save the player, and if everything fits the reroll always lands.
  */
 export const REROLL_LUCK = 0.65;
-
-/*
- * Storage is best-effort. Sandboxed frames and private windows can throw on
- * access rather than merely returning null, and a score that cannot be saved
- * is no reason to lose the game in progress.
- */
-function readNumber(key) {
-  try {
-    const raw = Number(localStorage.getItem(key));
-    return Number.isFinite(raw) && raw > 0 ? raw : 0;
-  } catch {
-    return 0;
-  }
-}
-
-function store(key, value) {
-  try {
-    localStorage.setItem(key, String(value));
-  } catch {
-    /* not persisted; play continues */
-  }
-}
 
 export class Game {
   constructor(radius = 4) {
@@ -127,7 +107,7 @@ export class Game {
     if (!this.canPlace(piece.shape, r, p)) return null;
 
     const placed = piece.shape.cells.map(([dr, dp]) => cellKey(r + dr, p + dp));
-    for (const key of placed) this.filled.set(key, piece.color);
+    for (const key of placed) this.filled.set(key, piece.tint);
     this.tray[slot] = null;
     this.placements++;
 
@@ -136,7 +116,7 @@ export class Game {
       if (members.every((key) => this.filled.has(key))) clearedLines.push(name);
     }
 
-    const cleared = new Map(); // key -> color, captured before removal
+    const cleared = new Map(); // key -> tint, captured before removal
     for (const name of clearedLines) {
       for (const key of this.board.groups.get(name)) {
         cleared.set(key, this.filled.get(key));
@@ -158,7 +138,7 @@ export class Game {
         GEMS_MAX_PER_DROP
       );
       this.gems += gems;
-      store(STORE_GEMS, this.gems);
+      write(STORE_GEMS, this.gems);
       for (const key of cleared.keys()) this.filled.delete(key);
     } else {
       this.streak = 0;
@@ -167,7 +147,7 @@ export class Game {
     this.score += points;
     if (this.score > this.best) {
       this.best = this.score;
-      store(STORE_BEST, this.best);
+      write(STORE_BEST, this.best);
     }
 
     if (this.tray.every((slotPiece) => !slotPiece)) this.refill();
@@ -175,7 +155,7 @@ export class Game {
 
     return {
       placed,
-      cleared: [...cleared].map(([key, color]) => ({ key, color })),
+      cleared: [...cleared].map(([key, tint]) => ({ key, tint })),
       lines: clearedLines.length,
       longestLines: longestCleared,
       points,
@@ -217,9 +197,9 @@ export class Game {
     if (!shape) return null;
 
     this.gems -= REROLL_COST;
-    store(STORE_GEMS, this.gems);
+    write(STORE_GEMS, this.gems);
 
-    const piece = { shape, color: randomColor() };
+    const piece = { shape, tint: randomTint() };
     this.tray[slot] = piece;
     // The draw can legitimately hand back another piece that fits nowhere, so
     // re-check rather than risk a board with no legal move and no game-over.

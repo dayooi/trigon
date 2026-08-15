@@ -16,16 +16,7 @@
  * Pieces are never rotated by the player, so each rotation is its own shape.
  */
 
-export const COLORS = [
-  '#ef5f78', // rose
-  '#f7b23b', // amber
-  '#8bd450', // lime
-  '#2ecc8f', // teal
-  '#3fa9f5', // blue
-  '#a77bf3', // violet
-  '#ff8a5b', // coral
-  '#39c7c7', // cyan
-];
+import { randomTint } from './themes.js';
 
 export const SHAPES = [
   // 1 triangle
@@ -85,12 +76,9 @@ export function randomShape() {
   return pickWeighted(SHAPES);
 }
 
-export function randomColor() {
-  return COLORS[(Math.random() * COLORS.length) | 0];
-}
-
+/** A piece carries a palette index, not a colour: see themes.js. */
 export function randomPiece() {
-  return { shape: randomShape(), color: randomColor() };
+  return { shape: randomShape(), tint: randomTint() };
 }
 
 /** Local (dr, dp, up) triples for drawing a shape outside the board. */

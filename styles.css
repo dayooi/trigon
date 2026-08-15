@@ -6,6 +6,21 @@
   --best: #ef5f78;
   --gold: #ffc93c;
   --text: #f2f2f2;
+  --muted: #bdbdbd;
+  --panel: #242424;
+  --pill: #141414;
+  --btn: #3a3a3a;
+  --btn-ink: #f2f2f2;
+  --btn-off: #333333;
+  --btn-off-ink: #6f6f6f;
+  --primary: #3ddc97;
+  --primary-ink: #10261d;
+  --scrim: rgba(12, 12, 12, 0.82);
+  --pause: #7ed957;
+  --flash: #ffffff;
+  --glow: rgba(255, 201, 60, 0.55);
+  --glow0: rgba(255, 201, 60, 0);
+  --shadow: rgba(0, 0, 0, 0.45);
   --cell-stroke: 0.12;  /* corner radius is half of this; see CELL_SHRINK */
   --clear-ms: 420ms;
   --font: 'Rubik', 'Trebuchet MS', system-ui, sans-serif;
@@ -40,12 +55,31 @@ body {
 
 /* ------------------------------------------------------------------ hud */
 
-/* Gem count sits alone at the top left. */
+/* Gem count left, palette button right. */
 .hud {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
+
+.theme-btn {
+  display: flex;
+  padding: 4px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.theme-btn svg { width: 30px; height: 30px; }
+.theme-btn .palette-body { fill: var(--text); opacity: 0.85; }
+/* The dots preview the live palette, so the button shows the current theme. */
+.theme-btn .dot-1 { fill: var(--piece-1); }
+.theme-btn .dot-2 { fill: var(--piece-2); }
+.theme-btn .dot-3 { fill: var(--piece-3); }
+.theme-btn .dot-4 { fill: var(--piece-4); }
+.theme-btn:active { opacity: 0.6; }
 
 /*
  * Score and board travel together: the stage centres the pair vertically, so
@@ -113,7 +147,7 @@ body {
   width: 0.22em;
   height: 0.85em;
   border-radius: 3px;
-  background: #7ed957;
+  background: var(--pause);
   font-size: inherit;
 }
 
@@ -126,7 +160,7 @@ body {
   padding: 2px 9px 2px 3px;
   border: 3px solid var(--gold);
   border-radius: 9px;
-  background: #141414;
+  background: var(--pill);
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -191,7 +225,7 @@ body {
 
 @keyframes clear-line {
   0%   { fill: var(--fill); stroke: var(--fill); }
-  18%  { fill: #ffffff; stroke: #ffffff; }
+  18%  { fill: var(--flash); stroke: var(--flash); }
   100% { fill: var(--cell); stroke: var(--cell); }
 }
 
@@ -244,7 +278,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 6px 10px var(--shadow));
 }
 
 .float-text {
@@ -252,8 +286,8 @@ body {
   transform: translate(-50%, -50%);
   font-size: 28px;
   font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  color: var(--text);
+  text-shadow: 0 2px 8px var(--bg);
   animation: rise 850ms ease-out forwards;
   white-space: nowrap;
 }
@@ -280,7 +314,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(12, 12, 12, 0.82);
+  background: var(--scrim);
   backdrop-filter: blur(3px);
 }
 
@@ -290,8 +324,8 @@ body {
   width: min(340px, 100%);
   padding: 26px 24px;
   border-radius: 20px;
-  background: #242424;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  background: var(--panel);
+  box-shadow: 0 18px 40px var(--shadow);
   text-align: center;
 }
 
@@ -306,7 +340,7 @@ body {
   justify-content: space-between;
   margin: 8px 0;
   font-size: 19px;
-  color: #bdbdbd;
+  color: var(--muted);
 }
 
 .stats strong { color: var(--text); }
@@ -329,23 +363,23 @@ body {
   padding: 13px 18px;
   border: 0;
   border-radius: 12px;
-  background: #3a3a3a;
-  color: var(--text);
+  background: var(--btn);
+  color: var(--btn-ink);
   font: inherit;
   font-size: 18px;
   font-weight: 700;
   cursor: pointer;
 }
 
-.btn.primary { background: var(--score); color: #10261d; }
+.btn.primary { background: var(--primary); color: var(--primary-ink); }
 .btn:active { transform: translateY(1px); }
 .btn[hidden] { display: none; }
 
 /* Written after .primary, and more specific, so a dead action never looks live. */
 .btn:disabled,
 .btn.primary:disabled {
-  background: #333333;
-  color: #6f6f6f;
+  background: var(--btn-off);
+  color: var(--btn-off-ink);
   cursor: default;
 }
 
@@ -360,7 +394,7 @@ body {
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 10, 10, 0.86);
+  background: var(--scrim);
 }
 
 .draw.shown { display: flex; }
@@ -369,8 +403,8 @@ body {
   width: min(340px, 92vw);
   padding: 20px 0 22px;
   border-radius: 20px;
-  background: #242424;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  background: var(--panel);
+  box-shadow: 0 18px 40px var(--shadow);
   text-align: center;
   overflow: hidden;
 }
@@ -437,7 +471,7 @@ body {
   border: 0;
   border-radius: 22px;
   background: var(--gold);
-  color: #2a2000;
+  color: var(--panel);
   font: inherit;
   font-size: 17px;
   font-weight: 800;
@@ -451,9 +485,9 @@ body {
 
 /* Glow only — a target that keeps moving is harder to hit and never settles. */
 @keyframes cta-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(255, 201, 60, 0.55); }
-  70%  { box-shadow: 0 0 0 14px rgba(255, 201, 60, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 201, 60, 0); }
+  0%   { box-shadow: 0 0 0 0 var(--glow); }
+  70%  { box-shadow: 0 0 0 14px var(--glow0); }
+  100% { box-shadow: 0 0 0 0 var(--glow0); }
 }
 
 /* Idle: the marker breathes so the reel reads as ready, not finished. */
@@ -462,8 +496,8 @@ body {
 }
 
 @keyframes marker-idle {
-  0%, 100% { border-color: rgba(255, 201, 60, 0.45); }
-  50%      { border-color: rgba(255, 201, 60, 1); }
+  0%, 100% { border-color: var(--glow); }
+  50%      { border-color: var(--gold); }
 }
 
 .confirm-piece {
@@ -478,7 +512,7 @@ body {
 
 .confirm-text {
   margin: 0;
-  color: #bdbdbd;
+  color: var(--muted);
   font-size: 16px;
   line-height: 1.45;
 }
@@ -491,3 +525,30 @@ body {
 }
 
 .confirm-cost svg { width: 15px; height: 15px; }
+
+/* ---------------------------------------------------------------- themes */
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 8px 9px;
+  border: 3px solid transparent;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.theme-card svg { width: 74px; height: 30px; }
+.theme-card.active { border-color: var(--gold); }
+.theme-card:active { transform: translateY(1px); }

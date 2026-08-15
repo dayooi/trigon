@@ -23,7 +23,9 @@ const read = (file) => readFileSync(resolve(root, file), 'utf8');
 
 // Dependency order: each module only uses names declared above it.
 const MODULES = [
+  'src/storage.js',
   'src/geometry.js',
+  'src/themes.js',
   'src/shapes.js',
   'src/game.js',
   'src/ui.js',

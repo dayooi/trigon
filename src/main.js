@@ -3,8 +3,10 @@
  */
 
 import { Game, REROLL_COST } from './game.js';
-import { SHAPES, COLORS } from './shapes.js';
-import { cellAtPoint } from './geometry.js';
+import { SHAPES } from './shapes.js';
+import { THEMES, DEFAULT_THEME, activeTheme, useTheme, pieceColor } from './themes.js';
+import { readText, write } from './storage.js';
+import { cellAtPoint, polyPoints, pointsAttr, H } from './geometry.js';
 import {
   renderBoard,
   pieceSvg,
@@ -16,6 +18,7 @@ import {
   floatText,
   tintCell,
   untintCell,
+  svgEl,
 } from './ui.js';
 
 const TOUCH_LIFT = 78; // px the piece floats above a finger
@@ -24,6 +27,7 @@ const CLEAR_ANIM_MS = 420; // keep in step with --clear-ms
 const TRAY_SCALE = 0.85; // tray pieces, relative to board cell size
 const REEL_ITEM_W = 104;  // keep in step with .reel-item width
 const SPIN_MS = 1900;
+const STORE_THEME = 'trigon.theme';
 
 const GEM_SVG =
   '<svg viewBox="0 0 24 24" aria-hidden="true">' +
@@ -41,6 +45,10 @@ const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
 const gemsEl = document.getElementById('gems');
 const pauseBtn = document.getElementById('pause');
+
+const themeBtn = document.getElementById('theme-btn');
+const themesEl = document.getElementById('themes');
+const themeGrid = document.getElementById('theme-grid');
 
 const confirmEl = document.getElementById('confirm');
 const confirmPiece = document.getElementById('confirm-piece');
@@ -78,7 +86,8 @@ function cancelTimers() {
 
 function syncBoard() {
   for (const [key, node] of cellNodes) {
-    paintCell(node, game.filled.get(key) || null);
+    // `has`, not a falsy check: palette index 0 is a real colour.
+    paintCell(node, game.filled.has(key) ? pieceColor(game.filled.get(key)) : null);
   }
 }
 
@@ -101,7 +110,7 @@ function renderTray() {
     slot.dataset.slot = String(index);
 
     if (piece) {
-      const { svg, geo, pad } = pieceSvg(piece.shape, piece.color);
+      const { svg, geo, pad } = pieceSvg(piece.shape, pieceColor(piece.tint));
       svg.style.width = (geo.width + pad * 2) * scale + 'px';
       svg.style.height = (geo.height + pad * 2) * scale + 'px';
       slot.appendChild(svg);
@@ -145,7 +154,7 @@ function startDrag(event, slotIndex, slotSvg) {
   const geo = shapeGeometry(piece.shape);
   const pad = 0.08;
   const scale = boardScale(boardSvg);
-  const { svg } = pieceSvg(piece.shape, piece.color, 'piece ghost-piece');
+  const { svg } = pieceSvg(piece.shape, pieceColor(piece.tint), 'piece ghost-piece');
 
   const vbMinX = geo.minX - pad;
   const vbMinY = geo.minY - pad;
@@ -193,7 +202,7 @@ function moveGhost(clientX, clientY) {
     const { r, p } = drag.target;
     for (const [dr, dp] of drag.piece.shape.cells) {
       const node = cellNodes.get(r + dr + ',' + (p + dp));
-      if (node) previewCell(node, drag.piece.color, true);
+      if (node) previewCell(node, pieceColor(drag.piece.tint), true);
     }
   }
 }
@@ -261,11 +270,11 @@ function applyResult(result, x, y) {
   syncBoard();
 
   if (result.cleared.length) {
-    for (const { key, color } of result.cleared) {
+    for (const { key, tint } of result.cleared) {
       const node = cellNodes.get(key);
       if (!node) continue;
       node.classList.add('clearing');
-      tintCell(node, color);
+      tintCell(node, pieceColor(tint));
     }
     later(syncBoard, CLEAR_ANIM_MS);
 
@@ -280,6 +289,80 @@ function applyResult(result, x, y) {
   if (game.over) later(showGameOver, CLEAR_ANIM_MS + 120);
   else later(maybeOfferReshuffle, CLEAR_ANIM_MS + 260);
 }
+
+/* ------------------------------------------------------------------ themes */
+
+/** Four triangles in the theme's own colours, on its own ground. */
+function themeSwatch(theme) {
+  const svg = svgEl('svg', {
+    viewBox: `-0.12 -0.12 2.74 ${H + 0.24}`,
+    preserveAspectRatio: 'xMidYMid meet',
+  });
+  for (let i = 0; i < 4; i++) {
+    svg.appendChild(
+      svgEl('polygon', {
+        points: pointsAttr(polyPoints(0, i, i % 2 === 0, 0.84)),
+        fill: theme.pieces[i],
+        stroke: theme.pieces[i],
+        'stroke-width': '0.12',
+        'stroke-linejoin': 'round',
+      })
+    );
+  }
+  return svg;
+}
+
+function buildThemeCards() {
+  themeGrid.replaceChildren();
+  for (const theme of THEMES) {
+    const card = document.createElement('button');
+    card.className = 'theme-card';
+    card.dataset.theme = theme.id;
+    card.style.background = theme.vars.bg;
+    card.style.color = theme.vars.text;
+
+    const label = document.createElement('span');
+    label.textContent = theme.label;
+    card.append(themeSwatch(theme), label);
+    card.addEventListener('click', () => applyTheme(theme.id));
+    themeGrid.appendChild(card);
+  }
+  markActiveTheme();
+}
+
+function markActiveTheme() {
+  const current = activeTheme().id;
+  for (const card of themeGrid.children) {
+    card.classList.toggle('active', card.dataset.theme === current);
+  }
+}
+
+/**
+ * Push a theme's palette onto the root element. Pieces hold a palette index
+ * rather than a colour, so repainting the board and tray is all it takes for
+ * everything already on the table to change season.
+ */
+function applyTheme(id, { save = true } = {}) {
+  const theme = useTheme(id);
+  const root = document.documentElement;
+  for (const [name, value] of Object.entries(theme.vars)) {
+    root.style.setProperty(`--${name}`, value);
+  }
+  // The palette button's dots show the current piece colours.
+  theme.pieces.slice(0, 4).forEach((color, i) => {
+    root.style.setProperty(`--piece-${i + 1}`, color);
+  });
+
+  if (save) write(STORE_THEME, theme.id);
+  markActiveTheme();
+  syncBoard();
+  renderTray();
+}
+
+themeBtn.addEventListener('click', () => themesEl.classList.add('shown'));
+document.getElementById('theme-close').addEventListener('click', () =>
+  themesEl.classList.remove('shown')
+);
 
 /* -------------------------------------------------------------- lucky draw */
 
@@ -327,7 +410,7 @@ function askReshuffle(slot) {
   if (!piece || game.over || game.paused || drawing) return;
 
   pendingSlot = slot;
-  confirmPiece.replaceChildren(pieceSvg(piece.shape, piece.color).svg);
+  confirmPiece.replaceChildren(pieceSvg(piece.shape, pieceColor(piece.tint)).svg);
 
   const affordable = game.gems >= REROLL_COST;
 
@@ -388,7 +471,7 @@ function armReel(result) {
   items.forEach((shape, i) => {
     const item = document.createElement('div');
     item.className = 'reel-item';
-    const color = i === landIndex ? piece.color : COLORS[i % COLORS.length];
+    const color = pieceColor(i === landIndex ? piece.tint : i);
     item.appendChild(pieceSvg(shape, color).svg);
     reelEl.appendChild(item);
   });
@@ -505,9 +588,11 @@ window.addEventListener('resize', () => {
 
 /* ------------------------------------------------------------------- start */
 
+buildThemeCards();
+applyTheme(readText(STORE_THEME) ?? DEFAULT_THEME, { save: false });
 syncBoard();
 syncHud();
 renderTray();
 
 // Handy for tinkering in the console while adding features.
-window.trigon = { game, SHAPES, syncBoard, syncHud, renderTray, restart };
+window.trigon = { game, SHAPES, THEMES, applyTheme, syncBoard, syncHud, renderTray, restart };

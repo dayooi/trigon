@@ -64,6 +64,8 @@ top-level name, which is the one way the concatenation could break quietly.
   shapes that do not, then picks a side by that rate — so the swap usually
   rescues you without ever being a certainty. Both extremes stay honest: if
   nothing fits, no draw can help; if everything fits, it always lands.
+- The palette button top right dresses the board for a season: Midnight (the
+  default dark board), Summer, Winter, Autumn and Spring. The choice sticks.
 - Keyboard: `p` pauses, `r` starts a new game.
 
 ## Code layout
@@ -71,6 +73,8 @@ top-level name, which is the one way the concatenation could break quietly.
 | File | Role |
 | --- | --- |
 | `src/geometry.js` | The triangular grid: cell addressing, hit-testing, line groups |
+| `src/themes.js` | Season palettes: interface tokens and piece colours |
+| `src/storage.js` | localStorage that cannot throw |
 | `src/shapes.js` | Piece definitions (polyiamonds) and the colour palette |
 | `src/game.js` | Rules and state — placement, clearing, scoring. No DOM |
 | `src/ui.js` | SVG rendering helpers for the board, pieces and ghost |
@@ -141,6 +145,19 @@ redraws up to that many times looking for a tray with at least one playable
 piece. It reads like a big mercy but measures as noise (53 vs 54 moves with it
 off), because a tray that fits nowhere is rare until the board is already
 jammed. Set it to 1 to remove the safety net entirely.
+
+### Themes
+
+A theme is `vars` — custom properties written onto the root element — plus
+`pieces`, the colours a piece can be. The stylesheet names no colour of its
+own beyond the defaults in `:root`, so adding a season is one entry in
+`THEMES` and nothing else.
+
+Pieces store an **index** into the palette rather than a hex value, which is
+what lets a theme change recolour a board mid-game: `syncBoard()` re-resolves
+every filled cell through the new palette. Index 0 is a real colour, so
+anything reading a stored tint must ask `filled.has(key)` rather than testing
+the value for truthiness.
 
 ### Tuning the look
 
