@@ -335,7 +335,7 @@ function askReshuffle(slot) {
   // between them only needs to cover what the buttons cannot.
   confirmText.textContent = affordable
     ? 'Swap it for another piece?'
-    : `Not enough gems — you have ${game.gems}.`;
+    : 'Not enough gems.';
 
   confirmYes.hidden = false;
   confirmYes.disabled = !affordable;

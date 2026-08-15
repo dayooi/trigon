@@ -341,6 +341,16 @@ body {
 .btn:active { transform: translateY(1px); }
 .btn[hidden] { display: none; }
 
+/* Written after .primary, and more specific, so a dead action never looks live. */
+.btn:disabled,
+.btn.primary:disabled {
+  background: #333333;
+  color: #6f6f6f;
+  cursor: default;
+}
+
+.btn:disabled:active { transform: none; }
+
 /* ------------------------------------------------------------ lucky draw */
 
 .draw {
