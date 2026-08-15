@@ -50,9 +50,10 @@ top-level name, which is the one way the concatenation could break quietly.
   Gems accumulate across games; they and the best score live in `localStorage`.
 - Gems buy rerolls. When a piece goes stuck — dimmed, fitting nowhere — the
   game offers by itself to swap it for 10 gems, with a cancel; you can also
-  tap the piece to ask. The offer only volunteers itself when the swap is
-  affordable, so short gems means a dimmed piece and no nag, and each piece is
-  offered once. The winner is decided before the reel is built, but it sits
+  tap the piece to ask. It speaks up even when the gems are short — a dead
+  piece with no explanation reads as the game being broken rather than the
+  player being broke — and each piece is offered once, so it states its case
+  and then leaves you alone. The winner is decided before the reel is built, but it sits
   parked until the player taps to spin — the theatre is theirs to start. The
   tray deliberately keeps drawing the old piece until the reel lands, so the
   overlay never spoils its own result, and the odds are not printed anywhere

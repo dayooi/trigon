@@ -301,10 +301,11 @@ drawEl.addEventListener('click', releaseReel);
  * Volunteer the offer when a piece goes dead, rather than waiting for a tap
  * nobody would think to make on a piece that visibly cannot be played.
  *
- * Only when the swap is actually available: with too few gems the dialog
- * could do nothing but nag, so a stuck piece then just sits there dimmed.
- * Each piece is offered once, so cancelling is respected until the tray
- * changes.
+ * It speaks up even when the gems are short. Saying "not enough gems" is worth
+ * an interruption: staying quiet leaves a dead piece sitting there with no
+ * explanation, which reads as the game being broken rather than the player
+ * being broke. Each piece is offered once, so it states its case and then
+ * leaves you alone.
  */
 function maybeOfferReshuffle() {
   if (game.over || game.paused || drawing || drag) return;
@@ -314,7 +315,6 @@ function maybeOfferReshuffle() {
     const piece = game.tray[slot];
     if (!piece || piece.offered) continue;
     if (game.findPlacement(piece.shape)) continue;
-    if (!game.canReroll(slot)) continue;
     piece.offered = true;
     askReshuffle(slot);
     return;
